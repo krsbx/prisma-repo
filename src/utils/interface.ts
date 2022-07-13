@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-cycle
 import { TYPE_SUFFIX } from './constants';
 
 export type ModelTypes<T extends string> = {
@@ -17,3 +18,10 @@ export type ModelTypes<T extends string> = {
 };
 
 export type TypeSuffix = typeof TYPE_SUFFIX[keyof typeof TYPE_SUFFIX];
+
+export type CliResults = {
+  modelname: string;
+  repositories: boolean;
+  baseRepository: boolean;
+  modelStructures: boolean;
+};

@@ -1,12 +1,20 @@
 import _ from 'lodash';
-import { DEFAULT_MODEL_TYPES, MOST_COMMON_TYPE, TYPES_NAMES, TYPE_SUFFIX } from './constants';
+import {
+  DEFAULT_MODEL_TYPES,
+  EXPORT_CONST,
+  EXPORT_TYPE,
+  MODELS_CONSTANTS_NAMES,
+  MOST_COMMON_TYPE,
+  TYPES_NAMES,
+  TYPE_SUFFIX,
+} from './constants';
 import { ModelTypes, TypeSuffix } from './interface';
 
-export const getAllModelNames = (typeDefinitions: string) => {
-  const typeDefinitionsArray = typeDefinitions.split('\n');
+export const getAllModelNames = (prisma: string) => {
+  const prismaArray = prisma.split('\n');
 
-  const modelNames = typeDefinitionsArray
-    .filter((line) => line.match(/export type (Aggregate.*?) = {/))
+  const modelNames = prismaArray
+    .filter((line) => line.match(new RegExp(`${EXPORT_TYPE} (${MOST_COMMON_TYPE}.*?) =`)))
     .map((line) => {
       const lineChunks = line.split(' ');
 
@@ -26,17 +34,19 @@ export const generateModelStructures = (modelNames: string[]) => {
     {}
   );
 
-  const modelStructureStrings = `export type ${TYPES_NAMES.MODEL_STRUCTURE} = ${JSON.stringify(
-    modelStructure,
-    null,
-    2
-  )}`;
+  const modelStructureStrings = `// eslint-disable-next-line @typescript-eslint/ban-types
+${EXPORT_TYPE} ${TYPES_NAMES.MODEL_STRUCTURE} = {
+  ${_.map(modelStructure, (value, key) => `${key}: ${value}`).join(';\n  ')};
+};`;
 
   return modelStructureStrings;
 };
 
+export const generateModelName = () =>
+  `${EXPORT_TYPE} ${TYPES_NAMES.MODEL_NAME} = keyof ${TYPES_NAMES.MODEL_STRUCTURE};`;
+
 export const generateModelScalarFields = () =>
-  `export type ${TYPES_NAMES.MODEL_SCALAR_FIELDS}<T extends ${TYPES_NAMES.MODEL_NAME}> = ${TYPES_NAMES.MODEL_STRUCTURE}[T]`;
+  `${EXPORT_TYPE} ${TYPES_NAMES.MODEL_SCALAR_FIELDS}<T extends keyof ${TYPES_NAMES.MODEL_STRUCTURE}> = ${TYPES_NAMES.MODEL_STRUCTURE}[T];`;
 
 export const extractModelTypes = <T extends string>(
   line: string,
@@ -44,7 +54,7 @@ export const extractModelTypes = <T extends string>(
   suffix: TypeSuffix,
   modelTypes: ModelTypes<T>
 ) => {
-  if (line.match(new RegExp(`export type ${modelName}${suffix}`))) {
+  if (line.match(new RegExp(`${EXPORT_TYPE} ${modelName}${suffix}`))) {
     const lineChunks = line.split(' ');
 
     // eslint-disable-next-line no-param-reassign
@@ -54,11 +64,11 @@ export const extractModelTypes = <T extends string>(
   }
 };
 
-export const getModelTypes = (typeDefinitions: string, typeName: string) => {
-  const typeDefinitionsArray = typeDefinitions.split('\n');
+export const getModelTypes = (prisma: string, typeName: string) => {
+  const prismaArray = prisma.split('\n');
   const modelType: ModelTypes<typeof typeName> = DEFAULT_MODEL_TYPES;
 
-  _.forEach(typeDefinitionsArray, (line) => {
+  _.forEach(prismaArray, (line) => {
     extractModelTypes(line, typeName, TYPE_SUFFIX.WHERE_INPUT, modelType);
     extractModelTypes(line, typeName, TYPE_SUFFIX.SELECT, modelType);
     extractModelTypes(line, typeName, TYPE_SUFFIX.INCLUDE, modelType);
@@ -74,10 +84,39 @@ export const getModelTypes = (typeDefinitions: string, typeName: string) => {
   return JSON.stringify(modelType, null, 2);
 };
 
-export const getModelsTypes = (typeDefinitions: string, modelNames: string[]) => {
+export const getModelsTypes = (prisma: string, modelNames: string[]) => {
   const modelsTypes: ModelTypes<string>[] = _.map(modelNames, (modelName) =>
-    JSON.parse(getModelTypes(typeDefinitions, modelName))
+    JSON.parse(getModelTypes(prisma, modelName))
   );
 
   return modelsTypes;
+};
+
+export const toConstantCase = (value: string) => _.upperCase(value).replace(/ /g, '_');
+
+export const generateModelNameConstants = (modelNames: string[]) => {
+  const modelNameConstants = _.reduce(
+    modelNames,
+    (curr, value) => ({
+      ...curr,
+      [toConstantCase(value)]: _.camelCase(value),
+    }),
+    {}
+  );
+
+  const modelNameConstantsStrings = `${EXPORT_CONST} ${MODELS_CONSTANTS_NAMES} = ${JSON.stringify(
+    modelNameConstants,
+    null,
+    2
+  )} as const`;
+
+  return modelNameConstantsStrings;
+};
+
+export const isModelExists = (prisma: string, modelName: string) => {
+  const prismaArray = prisma.split('\n');
+
+  return prismaArray.some((line) =>
+    line.match(new RegExp(`${EXPORT_TYPE} (${MOST_COMMON_TYPE}${modelName}) =`))
+  );
 };
