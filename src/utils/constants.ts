@@ -1,3 +1,4 @@
+import _ from 'lodash';
 // eslint-disable-next-line import/no-cycle
 import { CliResults } from './interface';
 
@@ -70,6 +71,35 @@ export const DEFAULT_CLI_RESULTS: CliResults = {
   modelStructures: false,
 };
 
-export const REPOSITORY_TYPE = 'Where, Select, Include, Create, Update, Cursor, Order' as const;
+export const REPOSITORY_TYPE = {
+  WHERE: 'Where',
+  SELECT: 'Select',
+  INCLUDE: 'Include',
+  CREATE: 'Create',
+  UPDATE: 'Update',
+  CURSOR: 'Cursor',
+  ORDER: 'Order',
+  DISTINCT: 'Distinct',
+} as const;
 
-export const EXTEND_MODEL_NAME = 'T extends typeof this.model' as const;
+export const PRISMA_TYPES = {
+  PRISMA: 'Prisma',
+  ENUMERABLE: 'Prisma.Enumerable',
+  BATCH_PAYLOAD: 'Prisma.BatchPayload',
+} as const;
+
+export const BASE_REPOSITORY_MODEL_NAME = 'this.model' as const;
+
+export const MODEL_NAME_TYPE = `typeof ${BASE_REPOSITORY_MODEL_NAME}` as const;
+
+export const BASE_REPOSITORY_TYPE = {
+  EXTEND_MODEL_NAME: `T extends ${MODEL_NAME_TYPE}`,
+  CONSTRUCTOR: _.values(REPOSITORY_TYPE).join(', '),
+  QUERY_CONDITIONS: `${REPOSITORY_TYPE.WHERE} | number | string`,
+  CREATE_UPDATE_OPTION: `${INTERFACE_NAME.BASE_OPTION}<${REPOSITORY_TYPE.INCLUDE}, ${REPOSITORY_TYPE.SELECT}>`,
+  ENUMERABLE_CREATE: `${PRISMA_TYPES.ENUMERABLE}<${REPOSITORY_TYPE.CREATE}>`,
+  ENUMERABLE_UPDATE: `${PRISMA_TYPES.ENUMERABLE}<${REPOSITORY_TYPE.UPDATE}>`,
+  FIND_OPTION: `${INTERFACE_NAME.FIND}<${REPOSITORY_TYPE.SELECT}, ${REPOSITORY_TYPE.INCLUDE}, ${REPOSITORY_TYPE.CURSOR}, ${REPOSITORY_TYPE.ORDER}, ${TYPES_NAMES.MODEL_SCALAR_FIELDS}<${MODEL_NAME_TYPE}>>`,
+  UPDATE_CREATE_PAYLOAD: `${REPOSITORY_TYPE.UPDATE} | ${REPOSITORY_TYPE.CREATE}`,
+  ...REPOSITORY_TYPE,
+} as const;
