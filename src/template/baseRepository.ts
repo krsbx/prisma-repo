@@ -132,8 +132,7 @@ export class BaseRepository {
   }
 }
 
-const factory = (model: ${TYPES_NAMES.MODEL_NAME}) =>
-  new BaseRepository(model);
+const factory = (model: ${TYPES_NAMES.MODEL_NAME}) => new BaseRepository(model);
 
 export default factory;
 `;

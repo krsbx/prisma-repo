@@ -17,13 +17,9 @@ const createModelStructures = async (prisma: string, settings: PrismaRepoConfig)
   const spinner = ora('Creating model structures..\n.').start();
   const { repositoryPath } = settings;
 
-  const repositoryDirPath = repositoryPath
-    ? `${appRootPath}/${repositoryPath}`
-    : `${appRootPath}/${DEFAULT_PATH}`;
+  const repositoryDirPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH}`;
 
-  const filePath = repositoryPath
-    ? `${appRootPath}/${repositoryPath}/${FILES_NAME.MODELS}`
-    : `${appRootPath}/${DEFAULT_PATH}/${FILES_NAME.MODELS}`;
+  const filePath = `${repositoryDirPath}/${FILES_NAME.MODELS}`;
 
   try {
     const modelNames = getAllModelName(prisma);

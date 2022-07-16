@@ -12,17 +12,11 @@ const createBaseRepository = async (prisma: string, settings: PrismaRepoConfig) 
   const spinner = ora('Creating base repository...\n').start();
   const { repositoryPath, overwrite } = settings;
 
-  const repositoryDirPath = repositoryPath
-    ? `${appRootPath}/${repositoryPath}`
-    : `${appRootPath}/${DEFAULT_PATH}`;
+  const repositoryDirPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH}`;
 
-  const filePath = repositoryPath
-    ? `${appRootPath}/${repositoryPath}/${FILES_NAME.BASE_REPOSITORY}`
-    : `${appRootPath}/${DEFAULT_PATH}/${FILES_NAME.BASE_REPOSITORY}`;
+  const filePath = `${repositoryDirPath}/${FILES_NAME.BASE_REPOSITORY}`;
 
-  const modelsPath = repositoryPath
-    ? `${appRootPath}/${repositoryPath}/${FILES_NAME.MODELS}`
-    : `${appRootPath}/${DEFAULT_PATH}/${FILES_NAME.MODELS}`;
+  const modelsPath = `${repositoryDirPath}/${FILES_NAME.MODELS}`;
 
   const fileExists = fs.existsSync(filePath);
   const directoryExists = fs.existsSync(repositoryDirPath);

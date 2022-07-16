@@ -21,17 +21,11 @@ const createRepository = async (prisma: string, modelName: string, settings: Pri
     return;
   }
 
-  const repositoryDirPath = repositoryPath
-    ? `${appRootPath}/${repositoryPath}`
-    : `${appRootPath}/${DEFAULT_PATH}`;
+  const repositoryDirPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH}`;
 
-  const filePath = repositoryPath
-    ? `${appRootPath}/${repositoryPath}/${_.camelCase(modelName)}.ts`
-    : `${appRootPath}/${DEFAULT_PATH}/${_.camelCase(modelName)}.ts`;
+  const filePath = `${repositoryDirPath}/${_.camelCase(modelName)}.ts`;
 
-  const baseRepositoryPath = repositoryPath
-    ? `${appRootPath}/${repositoryPath}/${FILES_NAME.BASE_REPOSITORY}`
-    : `${appRootPath}/${DEFAULT_PATH}/${FILES_NAME.BASE_REPOSITORY}`;
+  const baseRepositoryPath = `${repositoryDirPath}/${FILES_NAME.BASE_REPOSITORY}`;
 
   const fileExists = fs.existsSync(filePath);
   const directoryExists = fs.existsSync(repositoryDirPath);
