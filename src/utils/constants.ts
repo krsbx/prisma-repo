@@ -126,3 +126,10 @@ export const FILES_NAME = {
   BASE_REPOSITORY: 'baseRepository.ts',
   MODELS: 'models.ts',
 } as const;
+
+export const CONFIG_FILE_NAMES = {
+  JSON: 'repository.setting.json',
+  JS: 'repository.setting.js',
+  MJS: 'repository.setting.mjs',
+  TS: 'repository.setting.ts',
+} as const;
