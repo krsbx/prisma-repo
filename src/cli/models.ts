@@ -1,6 +1,7 @@
 import ora from 'ora';
 import chalk from 'chalk';
-import fs from 'fs/promises';
+import fs from 'fs-extra';
+import appRootPath from 'app-root-path';
 import { importer, interfaces, prismaInstance } from '../template/models';
 import {
   generateModelStructures,
@@ -9,10 +10,20 @@ import {
   getAllModelTypes,
   generateModelNameConstants,
 } from '../utils/models';
-import { MODEL_NAME, MODEL_SCALAR_FIELDS } from '../utils/constants';
+import { DEFAULT_PATH, FILES_NAME, MODEL_NAME, MODEL_SCALAR_FIELDS } from '../utils/constants';
+import { PrismaRepoConfig } from '../utils/interface';
 
-const createModelStructures = async (prisma: string) => {
+const createModelStructures = async (prisma: string, settings: PrismaRepoConfig) => {
   const spinner = ora('Creating model structures..\n.').start();
+  const { repositoryPath } = settings;
+
+  const repositoryDirPath = repositoryPath
+    ? `${appRootPath}/${repositoryPath}`
+    : `${appRootPath}/${DEFAULT_PATH}`;
+
+  const filePath = repositoryPath
+    ? `${appRootPath}/${repositoryPath}/${FILES_NAME.MODELS}`
+    : `${appRootPath}/${DEFAULT_PATH}/${FILES_NAME.MODELS}`;
 
   try {
     const modelNames = getAllModelName(prisma);
@@ -44,7 +55,11 @@ const createModelStructures = async (prisma: string) => {
 
     models += `${modelsPrismaTypes}\n`;
 
-    await fs.writeFile('./src/models.ts', models);
+    if (!fs.existsSync(repositoryDirPath)) {
+      await fs.mkdir(repositoryDirPath);
+    }
+
+    await fs.writeFile(filePath, models);
 
     spinner.succeed(chalk.green.bold('Model structures created'));
   } catch {

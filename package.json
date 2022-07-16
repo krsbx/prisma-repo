@@ -2,7 +2,7 @@
   "name": "prisma-repo",
   "version": "1.0.0",
   "description": "Library for generating repository pattern using Prisma ORM faster and easier",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsup src/index.ts --format esm --clean --sourcemap --minify --metafile",
     "dev": "tsup src/index.ts --format esm --watch --clean --onSuccess \"node dist/index.mjs\"",
@@ -27,6 +27,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
+    "@types/app-root-path": "^1.2.4",
     "@types/figlet": "^1.5.4",
     "@types/fs-extra": "^9.0.13",
     "@types/gradient-string": "^1.1.2",
@@ -54,6 +55,7 @@
     ]
   },
   "dependencies": {
+    "app-root-path": "^3.0.0",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",
     "figlet": "^1.5.2",

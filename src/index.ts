@@ -2,11 +2,14 @@
 
 import runCli from './cli/index';
 import renderTitle from './cli/title';
+import { getSettings } from './utils/common';
 
 const main = async () => {
   renderTitle();
 
-  await runCli();
+  const settings = await getSettings();
+
+  await runCli(settings);
 };
 
 main();

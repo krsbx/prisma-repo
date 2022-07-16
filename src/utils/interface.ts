@@ -25,3 +25,9 @@ export type CliResults = {
   baseRepository: boolean;
   modelStructures: boolean;
 };
+
+export type PrismaRepoConfig = {
+  repositoryPath?: string; // default: './src/repository'
+  extendExpress?: boolean; // default: false
+  overwrite?: boolean; // default: false
+};

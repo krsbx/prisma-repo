@@ -119,3 +119,10 @@ export const MODEL_NAME =
 
 export const MODEL_SCALAR_FIELDS =
   `${EXPORT_TYPE} ${TYPES_NAMES.MODEL_SCALAR_FIELDS}<T extends keyof ${TYPES_NAMES.MODEL_STRUCTURE}> = ${TYPES_NAMES.MODEL_STRUCTURE}[T];` as const;
+
+export const DEFAULT_PATH = 'src/repository' as const;
+
+export const FILES_NAME = {
+  BASE_REPOSITORY: 'baseRepository.ts',
+  MODELS: 'models.ts',
+} as const;

@@ -2,41 +2,71 @@ import _ from 'lodash';
 import ora from 'ora';
 import chalk from 'chalk';
 import fs from 'fs-extra';
+import appRootPath from 'app-root-path';
 import { importer } from '../template/repository';
 import { isModelExists } from '../utils/common';
 import { repositoryBuilder, repositoryExtendsBuilder } from '../utils/builder';
 import logger from '../utils/logger';
 import createModelStructures from './models';
 import createBaseRepository from './baseRepository';
+import { PrismaRepoConfig } from '../utils/interface';
+import { DEFAULT_PATH, FILES_NAME } from '../utils/constants';
 
-const createRepository = async (prisma: string, modelName: string) => {
+const createRepository = async (prisma: string, modelName: string, settings: PrismaRepoConfig) => {
   const spinner = ora(`Creating repository for model ${modelName}...\n`).start();
+  const { repositoryPath, overwrite } = settings;
+
+  if (!isModelExists(prisma, modelName)) {
+    spinner.fail(`Model ${modelName} does not exist`);
+    return;
+  }
+
+  const repositoryDirPath = repositoryPath
+    ? `${appRootPath}/${repositoryPath}`
+    : `${appRootPath}/${DEFAULT_PATH}`;
+
+  const filePath = repositoryPath
+    ? `${appRootPath}/${repositoryPath}/${_.camelCase(modelName)}.ts`
+    : `${appRootPath}/${DEFAULT_PATH}/${_.camelCase(modelName)}.ts`;
+
+  const baseRepositoryPath = repositoryPath
+    ? `${appRootPath}/${repositoryPath}/${FILES_NAME.BASE_REPOSITORY}`
+    : `${appRootPath}/${DEFAULT_PATH}/${FILES_NAME.BASE_REPOSITORY}`;
+
+  const fileExists = fs.existsSync(filePath);
+  const directoryExists = fs.existsSync(repositoryDirPath);
+  const baseRepoExists = fs.existsSync(baseRepositoryPath);
 
   try {
-    if (!isModelExists(prisma, modelName)) {
-      spinner.fail(`Model ${modelName} does not exist`);
-      return;
-    }
-
     let model = '';
 
     model += `${importer.lodash}\n`;
-    model += `${importer.types}\n\n`;
+    model += `${importer.types}\n`;
     model += `${importer.factory}\n\n`;
 
     model += `${repositoryBuilder(modelName)}\n\n`;
     model += `${repositoryExtendsBuilder(modelName)}`;
 
-    await fs.writeFile(`./src/${_.camelCase(modelName)}.ts`, model);
+    if (!directoryExists) {
+      await fs.mkdir(repositoryDirPath);
+    }
+
+    if (!fileExists || overwrite) {
+      await fs.writeFile(filePath, model);
+    } else {
+      spinner.fail(`Repository for model \`${modelName}\` already exists`);
+      spinner.fail(`Overwriting is disabled by default, enable it in the config file`);
+      return;
+    }
 
     spinner.succeed(chalk.green.bold(`Repository for model ${modelName} created`));
 
     logger.info('[Info]: Updating Model Structures!');
-    await createModelStructures(prisma);
+    await createModelStructures(prisma, settings);
 
-    if (!fs.existsSync('./src/baseRepository.ts')) {
+    if (!baseRepoExists) {
       logger.warn('[Warn]: Base repository not found!');
-      await createBaseRepository(prisma);
+      await createBaseRepository(prisma, settings);
     }
   } catch {
     spinner.fail(chalk.red.bold(`Repository creation failed for model ${modelName}`));

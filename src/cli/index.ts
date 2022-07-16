@@ -7,8 +7,9 @@ import createBaseRepository from './baseRepository';
 import createModelStructures from './models';
 import createRepository from './repository';
 import createRespositories from './repositories';
+import { PrismaRepoConfig } from '../utils/interface';
 
-const runCli = async () => {
+const runCli = async (settings: PrismaRepoConfig) => {
   const program = new Command().name(APP_TITLE);
 
   let cliResults = DEFAULT_CLI_RESULTS;
@@ -33,20 +34,20 @@ const runCli = async () => {
 
   try {
     if (cliResults.repositories) {
-      await createRespositories(prisma);
+      await createRespositories(prisma, settings);
       return;
     }
 
     if (cliResults.modelStructures) {
-      await createModelStructures(prisma);
+      await createModelStructures(prisma, settings);
     }
 
     if (cliResults.baseRepository) {
-      await createBaseRepository(prisma);
+      await createBaseRepository(prisma, settings);
     }
 
     if (!_.isEmpty(cliResults.modelname)) {
-      await createRepository(prisma, cliResults.modelname);
+      await createRepository(prisma, cliResults.modelname, settings);
     }
   } catch (err) {
     if (err instanceof Error && (err as any).isTTYError) {
