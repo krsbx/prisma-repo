@@ -3,7 +3,7 @@ import ora from 'ora';
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import { importer } from '../template/repository';
-import { getModelTypes, isModelExists } from '../utils/common';
+import { isModelExists } from '../utils/common';
 import { repositoryBuilder, repositoryExtendsBuilder } from '../utils/builder';
 import logger from '../utils/logger';
 import createModelStructures from './models';
@@ -18,16 +18,13 @@ const createRepository = async (prisma: string, modelName: string) => {
       return;
     }
 
-    const modelTypes = getModelTypes(prisma, modelName);
-
     let model = '';
 
     model += `${importer.lodash}\n`;
-    model += `${importer.prisma}\n`;
-    model += `${importer.factory}\n`;
     model += `${importer.types}\n\n`;
+    model += `${importer.factory}\n\n`;
 
-    model += `${repositoryBuilder(modelName, JSON.parse(modelTypes))}\n\n`;
+    model += `${repositoryBuilder(modelName)}\n\n`;
     model += `${repositoryExtendsBuilder(modelName)}`;
 
     await fs.writeFile(`./src/${_.camelCase(modelName)}.ts`, model);

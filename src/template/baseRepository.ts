@@ -6,7 +6,6 @@ import {
   BASE_REPOSITORY_TYPE,
   TYPES_NAMES,
   BASE_REPOSITORY_MODEL_NAME,
-  REPOSITORY_TYPE,
 } from '../utils/constants';
 
 const baseRepository = `/* eslint-disable @typescript-eslint/ban-ts-comment */
@@ -15,14 +14,13 @@ const baseRepository = `/* eslint-disable @typescript-eslint/ban-ts-comment */
 
 ${IMPORT_LIBRARY.LODASH}
 ${IMPORT_LIBRARY.PRISMA}
-import { ${INSTANCE_NAME.MODELS}, ${TYPES_NAMES.MODEL_NAME}, ${TYPES_NAMES.MODEL_STRUCTURE}, ${TYPES_NAMES.MODEL_SCALAR_FIELDS}, ${INTERFACE_NAME.ANY_RECORD}, ${INTERFACE_NAME.FIND}, ${INTERFACE_NAME.BASE_OPTION} } from './models';
+import { ${INSTANCE_NAME.MODELS}, ${TYPES_NAMES.MODEL_NAME}, ${TYPES_NAMES.MODEL_STRUCTURE}, ${TYPES_NAMES.MODEL_SCALAR_FIELDS}, ${INTERFACE_NAME.ANY_RECORD}, ${INTERFACE_NAME.FIND}, ${INTERFACE_NAME.BASE_OPTION}, ${TYPES_NAMES.MODEL_TYPES} } from './models';
 
 /**
  * @param model - The model name
- * @description ${BASE_REPOSITORY_TYPE.CONSTRUCTOR}
  */
 
-export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
+export class BaseRepository {
   constructor(protected model: ${TYPES_NAMES.MODEL_NAME}) {
     ${BASE_REPOSITORY_MODEL_NAME} = model;
   }
@@ -31,7 +29,7 @@ export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
     conditions: ${BASE_REPOSITORY_TYPE.WHERE},
     filterQueryParams: ${INTERFACE_NAME.ANY_RECORD} = {},
     options: ${INTERFACE_NAME.ANY_RECORD} = {},
-    include: ${REPOSITORY_TYPE.INCLUDE} = {} as ${REPOSITORY_TYPE.INCLUDE}
+    include: ${BASE_REPOSITORY_TYPE.INCLUDE} = {} as ${BASE_REPOSITORY_TYPE.INCLUDE}
   ) {
     const limit = +(options.limit === 'all' ? 0 : _.get(options, 'limit', 10));
     const offset = options.page && options.page > 0 ? limit * (options.page - 1) : 0;
@@ -46,7 +44,7 @@ export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
         ...(!_.isEmpty(include) && { include }),
         skip: offset,
         ...(limit > 0 && { take: limit }),
-      })) as ${TYPES_NAMES.MODEL_STRUCTURE}[T][],
+      })) as ${BASE_REPOSITORY_TYPE.MODEL_STRUCTURE}[],
       // eslint-disable-next-line no-underscore-dangle
       count: /* @ts-ignore */ (
         await ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].aggregate({
@@ -67,7 +65,7 @@ export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
     return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].findFirst({
       where: dbCond,
       ...option,
-    }) as Promise<${TYPES_NAMES.MODEL_STRUCTURE}[T]>;
+    }) as Promise<${BASE_REPOSITORY_TYPE.MODEL_STRUCTURE}>;
   }
 
   async create<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(
@@ -78,12 +76,12 @@ export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
     return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].create({
       data,
       ...option,
-    }) as Promise<${TYPES_NAMES.MODEL_STRUCTURE}[T]>;
+    }) as Promise<${BASE_REPOSITORY_TYPE.MODEL_STRUCTURE}>;
   }
 
   async update<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
-    data: ${BASE_REPOSITORY_TYPE.UPDATE_CREATE_PAYLOAD},
+    data: ${BASE_REPOSITORY_TYPE.UPDATE} | ${BASE_REPOSITORY_TYPE.CREATE},
     option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}
   ) {
     const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
@@ -93,10 +91,10 @@ export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
       data,
       where: dbCond,
       ...option,
-    }) as Promise<${TYPES_NAMES.MODEL_STRUCTURE}[T]>;
+    }) as Promise<${BASE_REPOSITORY_TYPE.MODEL_STRUCTURE}>;
   }
 
-  async delete(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
+  async delete<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
     const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
 
     // @ts-ignore
@@ -105,7 +103,7 @@ export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
     }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
   }
 
-  async updateOrCreate(
+  async updateOrCreate<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
     data: ${BASE_REPOSITORY_TYPE.CREATE},
     option: ${BASE_REPOSITORY_TYPE.FIND_OPTION} = {}
@@ -117,7 +115,7 @@ export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
     return this.create(data);
   }
 
-  async bulkCreate(data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_CREATE}, skipDuplicates = true) {
+  async bulkCreate<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_CREATE}, skipDuplicates = true) {
     // @ts-ignore
     return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].createMany({
       data,
@@ -125,7 +123,7 @@ export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
     }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
   }
 
-  async bulkUpdate(where: ${BASE_REPOSITORY_TYPE.WHERE}, data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_UPDATE}) {
+  async bulkUpdate<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(where: ${BASE_REPOSITORY_TYPE.WHERE}, data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_UPDATE}) {
     // @ts-ignore
     return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].updateMany({
       data,
@@ -134,8 +132,8 @@ export class BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}> {
   }
 }
 
-const factory = <${BASE_REPOSITORY_TYPE.CONSTRUCTOR}>(model: ${TYPES_NAMES.MODEL_NAME}) =>
-  new BaseRepository<${BASE_REPOSITORY_TYPE.CONSTRUCTOR}>(model);
+const factory = (model: ${TYPES_NAMES.MODEL_NAME}) =>
+  new BaseRepository(model);
 
 export default factory;
 `;

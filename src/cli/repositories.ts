@@ -3,34 +3,18 @@ import ora from 'ora';
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import logger from '../utils/logger';
-import { importer } from '../template/repository';
 import createModelStructures from './models';
 import createBaseRepository from './baseRepository';
-import { getAllModelNames, getModelsTypes } from '../utils/common';
-import { repositoryBuilder, repositoryExtendsBuilder } from '../utils/builder';
+import { getAllModelName } from '../utils/models';
+import createRepository from './repository';
 
 const createRespositories = async (prisma: string) => {
   const spinner = ora('Creating repositories...\n').start();
 
   try {
-    const modelsName = getAllModelNames(prisma);
-    const modelsTypes = getModelsTypes(prisma, modelsName);
+    const modelsName = getAllModelName(prisma);
 
-    await Promise.all(
-      _.map(modelsName, async (modelName, id) => {
-        let model = '';
-
-        model += `${importer.lodash}\n`;
-        model += `${importer.prisma}\n`;
-        model += `${importer.factory}\n`;
-        model += `${importer.types}\n\n`;
-
-        model += `${repositoryBuilder(modelName, modelsTypes[id])}\n\n`;
-        model += `${repositoryExtendsBuilder(modelName)}`;
-
-        return fs.writeFile(`./src/${_.camelCase(modelName)}.ts`, model);
-      })
-    );
+    await Promise.all(_.map(modelsName, async (modelName) => createRepository(prisma, modelName)));
 
     spinner.succeed(chalk.green.bold('Repositories created'));
 

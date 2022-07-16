@@ -10,8 +10,7 @@ import {
 } from '../utils/constants';
 
 export const importer = {
-  lodash: `/* eslint-disable @typescript-eslint/ban-ts-comment */
-${IMPORT_LIBRARY.LODASH}`,
+  lodash: `${IMPORT_LIBRARY.LODASH}`,
   start: 'import { PrismaClient, Prisma,',
   // Import the generated types from the generated file
   // While creating the template
