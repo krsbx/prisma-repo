@@ -1,0 +1,10 @@
+.eslintrc.js
+.prettierignore
+.prettierrc.js
+commitlint.config.ts
+tsconfig.json
+
+.husky/*
+
+repository.setting.*
+*.tgz

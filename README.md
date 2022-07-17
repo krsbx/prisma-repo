@@ -75,7 +75,9 @@ module.exports = config;
 // Language: typescript
 // Path: repository.setting.ts
 
-const config = {
+import { PrismaRepoConfig } from 'prisma-repo';
+
+const config: PrismaRepoConfig = {
   extendExpress: true, // default false
   overwrite: false, // default false
   repositoryPath: 'src/repository', // default 'src/repository'
