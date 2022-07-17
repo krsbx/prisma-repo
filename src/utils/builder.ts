@@ -42,24 +42,27 @@ export const repositoryTypeBuilder = <T extends string>(modelName: T, modelType:
 };
 
 export const expressTypesBuilder = (modelsName: string[]) => {
-  let expressTypes = '';
+  const expressTypes = `export {};
 
-  expressTypes += `declare namespace Express {\n`;
+declare global {
+  namespace Express {
+    import { ${modelsName.join(', ')} } from '@prisma/client';
 
-  expressTypes += `  import { ${modelsName.join(', ')} } from '@prisma/client';\n\n`;
+    interface Request {
+${_.map(modelsName, (modelName) => {
+  const key = _.camelCase(modelName);
 
-  expressTypes += `  interface Request {\n`;
+  let types = '';
 
-  _.forEach(modelsName, (modelName) => {
-    const key = _.camelCase(modelName);
+  types += `      ${key}?: ${modelName};\n`;
+  types += `      ${key}s?: ${modelName}[];`;
 
-    expressTypes += `    ${key}?: ${modelName};\n`;
-    expressTypes += `    ${key}s?: ${modelName}[];\n`;
-  });
-
-  expressTypes += `  }\n`;
-
-  expressTypes += `}\n`;
+  return types;
+}).join('\n')}
+    }
+  }
+}
+`;
 
   return expressTypes;
 };
