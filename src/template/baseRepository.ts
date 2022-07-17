@@ -6,6 +6,8 @@ import {
   BASE_REPOSITORY_TYPE,
   TYPES_NAMES,
   BASE_REPOSITORY_MODEL_NAME,
+  BASE_REPOSITORY_BASE_TYPE,
+  REPOSITORY_TYPE,
 } from '../utils/constants';
 
 const baseRepository = `/* eslint-disable @typescript-eslint/ban-ts-comment */
@@ -20,16 +22,16 @@ import { ${INSTANCE_NAME.MODELS}, ${TYPES_NAMES.MODEL_NAME}, ${TYPES_NAMES.MODEL
  * @param model - The model name
  */
 
-export class BaseRepository {
+export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
   constructor(protected model: ${TYPES_NAMES.MODEL_NAME}) {
     ${BASE_REPOSITORY_MODEL_NAME} = model;
   }
 
-  async findAll<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(
-    conditions: ${BASE_REPOSITORY_TYPE.WHERE},
+  async findAll(
+    conditions: ${REPOSITORY_TYPE.WHERE},
     filterQueryParams: ${INTERFACE_NAME.ANY_RECORD} = {},
     options: ${INTERFACE_NAME.ANY_RECORD} = {},
-    include: ${BASE_REPOSITORY_TYPE.INCLUDE} = {} as ${BASE_REPOSITORY_TYPE.INCLUDE}
+    include: ${REPOSITORY_TYPE.INCLUDE} = {} as ${REPOSITORY_TYPE.INCLUDE}
   ) {
     const limit = +(options.limit === 'all' ? 0 : _.get(options, 'limit', 10));
     const offset = options.page && options.page > 0 ? limit * (options.page - 1) : 0;
@@ -44,7 +46,7 @@ export class BaseRepository {
         ...(!_.isEmpty(include) && { include }),
         skip: offset,
         ...(limit > 0 && { take: limit }),
-      })) as ${BASE_REPOSITORY_TYPE.MODEL_STRUCTURE}[],
+      })) as ${REPOSITORY_TYPE.MODEL}[],
       // eslint-disable-next-line no-underscore-dangle
       count: /* @ts-ignore */ (
         await ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].aggregate({
@@ -55,7 +57,7 @@ export class BaseRepository {
     };
   }
 
-  async findOne<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(
+  async findOne(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
     option: ${BASE_REPOSITORY_TYPE.FIND_OPTION} = {}
   ) {
@@ -65,23 +67,23 @@ export class BaseRepository {
     return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].findFirst({
       where: dbCond,
       ...option,
-    }) as Promise<${BASE_REPOSITORY_TYPE.MODEL_STRUCTURE}>;
+    }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
 
-  async create<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(
-    data: ${BASE_REPOSITORY_TYPE.CREATE},
+  async create(
+    data: ${REPOSITORY_TYPE.CREATE},
     option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}
   ) {
     // @ts-ignore
     return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].create({
       data,
       ...option,
-    }) as Promise<${BASE_REPOSITORY_TYPE.MODEL_STRUCTURE}>;
+    }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
 
-  async update<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(
+  async update(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
-    data: ${BASE_REPOSITORY_TYPE.UPDATE} | ${BASE_REPOSITORY_TYPE.CREATE},
+    data: ${BASE_REPOSITORY_TYPE.UPDATE_CREATE_PAYLOAD},
     option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}
   ) {
     const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
@@ -91,10 +93,10 @@ export class BaseRepository {
       data,
       where: dbCond,
       ...option,
-    }) as Promise<${BASE_REPOSITORY_TYPE.MODEL_STRUCTURE}>;
+    }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
 
-  async delete<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
+  async delete(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
     const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
 
     // @ts-ignore
@@ -103,9 +105,9 @@ export class BaseRepository {
     }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
   }
 
-  async updateOrCreate<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(
+  async updateOrCreate(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
-    data: ${BASE_REPOSITORY_TYPE.CREATE},
+    data: ${REPOSITORY_TYPE.CREATE},
     option: ${BASE_REPOSITORY_TYPE.FIND_OPTION} = {}
   ) {
     const obj = await this.findOne(conditions, option);
@@ -115,7 +117,7 @@ export class BaseRepository {
     return this.create(data);
   }
 
-  async bulkCreate<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_CREATE}, skipDuplicates = true) {
+  async bulkCreate(data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_CREATE}, skipDuplicates = true) {
     // @ts-ignore
     return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].createMany({
       data,
@@ -123,7 +125,7 @@ export class BaseRepository {
     }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
   }
 
-  async bulkUpdate<${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(where: ${BASE_REPOSITORY_TYPE.WHERE}, data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_UPDATE}) {
+  async bulkUpdate(where: ${REPOSITORY_TYPE.WHERE}, data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_UPDATE}) {
     // @ts-ignore
     return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].updateMany({
       data,
@@ -132,7 +134,18 @@ export class BaseRepository {
   }
 }
 
-const factory = (model: ${TYPES_NAMES.MODEL_NAME}) => new BaseRepository(model);
+const factory = <${BASE_REPOSITORY_TYPE.EXTEND_MODEL_NAME}>(model: T) => 
+  new BaseRepository<
+  ${BASE_REPOSITORY_BASE_TYPE.WHERE},
+  ${BASE_REPOSITORY_BASE_TYPE.SELECT},
+  ${BASE_REPOSITORY_BASE_TYPE.INCLUDE},
+  ${BASE_REPOSITORY_BASE_TYPE.CREATE},
+  ${BASE_REPOSITORY_BASE_TYPE.UPDATE},
+  ${BASE_REPOSITORY_BASE_TYPE.CURSOR},
+  ${BASE_REPOSITORY_BASE_TYPE.ORDER},
+  ${BASE_REPOSITORY_BASE_TYPE.SCALAR},
+  ${BASE_REPOSITORY_TYPE.MODEL_STRUCTURE}
+  >(model);
 
 export default factory;
 `;

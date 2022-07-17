@@ -26,8 +26,14 @@ export type CliResults = {
   modelStructures: boolean;
 };
 
+export type PrismaRepoOverwrite = {
+  repository?: boolean;
+  baseRepository?: boolean;
+};
+
 export type PrismaRepoConfig = {
   repositoryPath?: string; // default: './src/repository'
   extendExpress?: boolean; // default: false
-  overwrite?: boolean; // default: false
+  overwrite?: boolean | PrismaRepoOverwrite; // default: false
+  typesPath?: string; // default: './src/types'
 };

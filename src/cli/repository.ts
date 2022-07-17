@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import fs from 'fs-extra';
 import appRootPath from 'app-root-path';
 import { importer } from '../template/repository';
-import { isModelExists } from '../utils/common';
+import { checkIsShouldOverwrite, isModelExists } from '../utils/common';
 import { repositoryBuilder, repositoryExtendsBuilder } from '../utils/builder';
 import logger from '../utils/logger';
 import createModelStructures from './models';
@@ -21,10 +21,10 @@ const createRepository = async (prisma: string, modelName: string, settings: Pri
     return;
   }
 
-  const repositoryDirPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH}`;
+  const isShouldOverwrite = checkIsShouldOverwrite(overwrite, 'repository');
 
+  const repositoryDirPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH.REPOSITORY}`;
   const filePath = `${repositoryDirPath}/${_.camelCase(modelName)}.ts`;
-
   const baseRepositoryPath = `${repositoryDirPath}/${FILES_NAME.BASE_REPOSITORY}`;
 
   const fileExists = fs.existsSync(filePath);
@@ -45,7 +45,7 @@ const createRepository = async (prisma: string, modelName: string, settings: Pri
       await fs.mkdir(repositoryDirPath);
     }
 
-    if (!fileExists || overwrite) {
+    if (isShouldOverwrite || !fileExists) {
       await fs.writeFile(filePath, model);
     } else {
       spinner.fail(`Repository for model \`${modelName}\` already exists`);

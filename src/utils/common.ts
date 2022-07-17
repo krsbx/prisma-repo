@@ -4,7 +4,7 @@ import { promisify } from 'util';
 import { exec } from 'child_process';
 import appRootPath from 'app-root-path';
 import { CONFIG_FILE_NAMES, EXPORT_TYPE, MOST_COMMON_TYPE } from './constants';
-import { PrismaRepoConfig } from './interface';
+import { PrismaRepoConfig, PrismaRepoOverwrite } from './interface';
 
 export const toConstantCase = (value: string) => _.upperCase(value).replace(/ /g, '_');
 
@@ -19,29 +19,41 @@ export const isModelExists = (prisma: string, modelName: string) => {
 export const execAsync = promisify(exec);
 
 export const loadJsonSettings = async () => {
-  if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.JSON}`)) return {};
+  try {
+    if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.JSON}`)) return {};
 
-  return (await fs.readJson(`${appRootPath}/${CONFIG_FILE_NAMES.JSON}`)) as PrismaRepoConfig;
+    return (await fs.readJson(`${appRootPath}/${CONFIG_FILE_NAMES.JSON}`)) as PrismaRepoConfig;
+  } catch {
+    return {};
+  }
 };
 
 export const loadJsSettings = async () => {
-  if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.JS}`)) return {};
+  try {
+    if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.JS}`)) return {};
 
-  return (await import(`${appRootPath}/${CONFIG_FILE_NAMES.JS}`)).default;
+    return (await import(`${appRootPath}/${CONFIG_FILE_NAMES.JS}`)).default;
+  } catch {
+    return {};
+  }
 };
 
 export const loadTsSettings = async () => {
-  if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.TS}`)) return {};
+  try {
+    if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.TS}`)) return {};
 
-  await execAsync(
-    `npx tsup ${appRootPath}/${CONFIG_FILE_NAMES.TS} --format esm --clean --outDir .tmp`
-  );
+    await execAsync(
+      `npx tsup ${appRootPath}/${CONFIG_FILE_NAMES.TS} --format esm --clean --outDir .tmp`
+    );
 
-  const settings = (await import(`${appRootPath}/.tmp/${CONFIG_FILE_NAMES.MJS}`)).default;
+    const settings = (await import(`${appRootPath}/.tmp/${CONFIG_FILE_NAMES.MJS}`)).default;
 
-  fs.removeSync(`${appRootPath}/.tmp`);
+    fs.removeSync(`${appRootPath}/.tmp`);
 
-  return settings;
+    return settings;
+  } catch {
+    return {};
+  }
 };
 
 export const getSettings = async () => {
@@ -58,4 +70,15 @@ export const getSettings = async () => {
   }
 
   return settings;
+};
+
+export const checkIsShouldOverwrite = (
+  overwrite: PrismaRepoConfig['overwrite'],
+  types: keyof PrismaRepoOverwrite
+) => {
+  if (_.isNil(overwrite)) return false;
+
+  if (_.isBoolean(overwrite)) return overwrite;
+
+  return overwrite[types];
 };

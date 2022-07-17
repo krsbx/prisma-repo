@@ -7,15 +7,16 @@ import createModelStructures from './models';
 import baseRepository from '../template/baseRepository';
 import { PrismaRepoConfig } from '../utils/interface';
 import { DEFAULT_PATH, FILES_NAME } from '../utils/constants';
+import { checkIsShouldOverwrite } from '../utils/common';
 
 const createBaseRepository = async (prisma: string, settings: PrismaRepoConfig) => {
   const spinner = ora('Creating base repository...\n').start();
   const { repositoryPath, overwrite } = settings;
 
-  const repositoryDirPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH}`;
+  const isShouldOverwrite = checkIsShouldOverwrite(overwrite, 'baseRepository');
 
+  const repositoryDirPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH.REPOSITORY}`;
   const filePath = `${repositoryDirPath}/${FILES_NAME.BASE_REPOSITORY}`;
-
   const modelsPath = `${repositoryDirPath}/${FILES_NAME.MODELS}`;
 
   const fileExists = fs.existsSync(filePath);
@@ -27,7 +28,7 @@ const createBaseRepository = async (prisma: string, settings: PrismaRepoConfig) 
       await fs.mkdir(repositoryDirPath);
     }
 
-    if (!fileExists || overwrite) {
+    if (isShouldOverwrite || !fileExists) {
       await fs.writeFile(filePath, baseRepository);
     } else {
       spinner.fail(`baseRepository already exists`);

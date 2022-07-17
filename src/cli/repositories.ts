@@ -15,7 +15,7 @@ const createRespositories = async (prisma: string, settings: PrismaRepoConfig) =
   const spinner = ora('Creating repositories...\n').start();
   const { repositoryPath } = settings;
 
-  const baseRepositoryPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH}/${
+  const baseRepositoryPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH.REPOSITORY}/${
     FILES_NAME.BASE_REPOSITORY
   }`;
 

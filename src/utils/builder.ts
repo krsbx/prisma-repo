@@ -40,3 +40,26 @@ export const repositoryTypeBuilder = <T extends string>(modelName: T, modelType:
     ${[REPOSITORY_TYPE.ORDER]}: ${getModelPrismaType(modelType.OrderByWithRelationInput)};
   };`;
 };
+
+export const expressTypesBuilder = (modelsName: string[]) => {
+  let expressTypes = '';
+
+  expressTypes += `declare namespace Express {\n`;
+
+  expressTypes += `  import { ${modelsName.join(', ')} } from '@prisma/client';\n\n`;
+
+  expressTypes += `  interface Request {\n`;
+
+  _.forEach(modelsName, (modelName) => {
+    const key = _.camelCase(modelName);
+
+    expressTypes += `    ${key}?: ${modelName};\n`;
+    expressTypes += `    ${key}s?: ${modelName}[];\n`;
+  });
+
+  expressTypes += `  }\n`;
+
+  expressTypes += `}\n`;
+
+  return expressTypes;
+};
