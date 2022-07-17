@@ -1,7 +1,7 @@
 {
   "name": "prisma-repo",
   "version": "0.1.0",
-  "description": "Library for generating repository pattern using Prisma ORM faster and easier",
+  "description": "Generating repository pattern using Prisma ORM faster and easier",
   "main": "dist/index.mjs",
   "scripts": {
     "start": "node dist/index.mjs",
