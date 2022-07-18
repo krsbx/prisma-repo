@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import fs from 'fs/promises';
+import appRootPath from 'app-root-path';
 import { Command } from 'commander';
 import { APP_TITLE, DEFAULT_CLI_RESULTS } from '../utils/constants';
 import logger from '../utils/logger';
@@ -30,7 +31,7 @@ const runCli = async (settings: PrismaRepoConfig) => {
 
   cliResults = program.opts();
 
-  const prisma = await fs.readFile('./node_modules/.prisma/client/index.d.ts', 'utf8');
+  const prisma = await fs.readFile(`${appRootPath}/node_modules/.prisma/client/index.d.ts`, 'utf8');
 
   try {
     if (cliResults.repositories) {

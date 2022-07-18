@@ -74,6 +74,8 @@ export const getModelTypes = (prisma: string, typeName: string) => {
     extractModelTypes(line, typeName, TYPE_SUFFIX.ORDER_BY_WITH_RELATION_INPUT, modelType);
   });
 
+  modelType.Delegate = `${typeName}${TYPE_SUFFIX.DELEGATE}`;
+
   // Stringyfy the model types
   // We need to stringify the model types since for somehow
   // it race with getModelsType when using map/foreach

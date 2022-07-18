@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { toConstantCase } from './common';
-import { MODELS_CONSTANTS_NAMES, PRISMA_TYPES, REPOSITORY_TYPE } from './constants';
+import { MODELS_CONSTANTS_NAMES, PRISMA_TYPES, REPOSITORY_TYPE, TYPES_NAMES } from './constants';
 import { ModelTypes } from './interface';
 
 export const repositoryBuilder = <T extends string>(modelName: T) => {
@@ -38,6 +38,9 @@ export const repositoryTypeBuilder = <T extends string>(modelName: T, modelType:
     ${[REPOSITORY_TYPE.UPDATE]}: ${getModelPrismaType(modelType.UpdateInput)};
     ${[REPOSITORY_TYPE.CURSOR]}: ${getModelPrismaType(modelType.WhereUniqueInput)};
     ${[REPOSITORY_TYPE.ORDER]}: ${getModelPrismaType(modelType.OrderByWithRelationInput)};
+    ${[REPOSITORY_TYPE.DELEGATE]}: ${getModelPrismaType(modelType.Delegate)}<${
+    TYPES_NAMES.MODEL_DELEGATE
+  }>;
   };`;
 };
 
@@ -46,7 +49,7 @@ export const expressTypesBuilder = (modelsName: string[]) => {
 
 declare global {
   namespace Express {
-    import { ${modelsName.join(', ')} } from '@prisma/client';
+    import type { ${modelsName.join(', ')} } from '@prisma/client';
 
     interface Request {
 ${_.map(modelsName, (modelName) => {

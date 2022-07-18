@@ -15,6 +15,7 @@ export type ModelTypes<T extends string> = {
     | `${T}${typeof TYPE_SUFFIX.ORDER_BY_WITH_RELATION_INPUT}`
     | 'unknown'
     | unknown;
+  [TYPE_SUFFIX.DELEGATE]: `${T}${typeof TYPE_SUFFIX.DELEGATE}` | 'unknown' | unknown;
 };
 
 export type TypeSuffix = typeof TYPE_SUFFIX[keyof typeof TYPE_SUFFIX];

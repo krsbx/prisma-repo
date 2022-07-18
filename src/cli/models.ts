@@ -10,7 +10,13 @@ import {
   getAllModelTypes,
   generateModelNameConstants,
 } from '../utils/models';
-import { DEFAULT_PATH, FILES_NAME, MODEL_NAME, MODEL_SCALAR_FIELDS } from '../utils/constants';
+import {
+  DEFAULT_PATH,
+  FILES_NAME,
+  MODEL_DELEGATE,
+  MODEL_NAME,
+  MODEL_SCALAR_FIELDS,
+} from '../utils/constants';
 import { PrismaRepoConfig } from '../utils/interface';
 import { expressTypesBuilder } from '../utils/builder';
 
@@ -52,6 +58,7 @@ const createModelStructures = async (prisma: string, settings: PrismaRepoConfig)
     models += `${modelStructures}\n\n`;
     models += `${MODEL_NAME}\n\n`;
     models += `${MODEL_SCALAR_FIELDS}\n\n`;
+    models += `${MODEL_DELEGATE}\n\n`;
 
     models += `${modelsPrismaTypes}\n`;
 
