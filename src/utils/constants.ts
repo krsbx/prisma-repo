@@ -152,3 +152,10 @@ export const CONFIG_FILE_NAMES = {
   MJS: 'repository.setting.mjs',
   TS: 'repository.setting.ts',
 } as const;
+
+export const PRISMA_LOGGER = {
+  QUERY: 'query',
+  INFO: 'info',
+  WARN: 'warn',
+  ERROR: 'error',
+} as const;

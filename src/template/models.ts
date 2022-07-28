@@ -35,7 +35,10 @@ ${EXPORT_TYPE} ${INTERFACE_NAME.ANY_RECORD} = Record<string, any>;`,
 } as const;
 
 export const prismaInstance = {
-  prisma: `${EXPORT_CONST} ${INSTANCE_NAME.PRISMA} = new PrismaClient();`,
+  prisma: (logger: string) =>
+    `${EXPORT_CONST} ${INSTANCE_NAME.PRISMA} = new PrismaClient({
+  log: ${logger}
+});`,
   models: `${EXPORT_CONST} ${INSTANCE_NAME.MODELS} = _.omit(${INSTANCE_NAME.PRISMA}, [
   '$on',
   '$connect',

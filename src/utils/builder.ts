@@ -58,7 +58,7 @@ ${_.map(modelsName, (modelName) => {
   let types = '';
 
   types += `      ${key}?: ${modelName};\n`;
-  types += `      ${key}s?: ${modelName}[];`;
+  types += `      ${key}s?: ${modelName}[] | { rows: ${modelName}[]; count: number };`;
 
   return types;
 }).join('\n')}

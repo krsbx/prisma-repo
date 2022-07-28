@@ -65,6 +65,7 @@ const config = {
   overwrite: false, // default false
   repositoryPath: 'src/repository', // default 'src/repository'
   typesPath: 'src/types', // default 'src/types'
+  prismaLogger: true, // default false
 };
 
 module.exports = config;
@@ -82,6 +83,7 @@ const config: PrismaRepoConfig = {
   overwrite: false, // default false
   repositoryPath: 'src/repository', // default 'src/repository'
   typesPath: 'src/types', // default 'src/types'
+  prismaLogger: true, // default false
 };
 
 export default config;
@@ -95,7 +97,8 @@ export default config;
   "extendExpress": true, // default false
   "overwrite": false, // default false
   "repositoryPath": "src/repository", // default 'src/repository'
-  "typesPath": "src/types" // default 'src/types'
+  "typesPath": "src/types", // default 'src/types'
+  "prismaLogger": true, // default false
 }
 ```
 
@@ -124,4 +127,13 @@ Determine where to put the extended express definition files. By default it will
 
 ```ts
 typesPath: string
+```
+Will enable logging in prisma instance in `models.ts`. By default it will not show any logger (`false`)
+```ts
+prismaLogger: boolean | {
+  query: boolean;
+  info: boolean;
+  warn: boolean;
+  error: boolean;
+} | ('query' | 'info' | 'warn' | 'error')[];
 ```

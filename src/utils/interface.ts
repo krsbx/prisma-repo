@@ -32,9 +32,21 @@ export type PrismaRepoOverwrite = {
   baseRepository?: boolean;
 };
 
+export type PrismaLoggerType = 'query' | 'info' | 'warn' | 'error';
+
+export type PrismaLogger =
+  | {
+      query?: boolean;
+      info?: boolean;
+      warn?: boolean;
+      error?: boolean;
+    }
+  | PrismaLoggerType[];
+
 export type PrismaRepoConfig = {
   repositoryPath?: string; // default: './src/repository'
   extendExpress?: boolean; // default: false
   overwrite?: boolean | PrismaRepoOverwrite; // default: false
   typesPath?: string; // default: './src/types'
+  prismaLogger?: boolean | PrismaLogger; // default: false
 };

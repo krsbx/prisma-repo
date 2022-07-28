@@ -3,8 +3,8 @@ import fs from 'fs-extra';
 import { promisify } from 'util';
 import { exec } from 'child_process';
 import appRootPath from 'app-root-path';
-import { CONFIG_FILE_NAMES, EXPORT_TYPE, MOST_COMMON_TYPE } from './constants';
-import { PrismaRepoConfig, PrismaRepoOverwrite } from './interface';
+import { CONFIG_FILE_NAMES, EXPORT_TYPE, MOST_COMMON_TYPE, PRISMA_LOGGER } from './constants';
+import { PrismaLoggerType, PrismaRepoConfig, PrismaRepoOverwrite } from './interface';
 
 export const toConstantCase = (value: string) => _.upperCase(value).replace(/ /g, '_');
 
@@ -81,4 +81,27 @@ export const checkIsShouldOverwrite = (
   if (_.isBoolean(overwrite)) return overwrite;
 
   return overwrite[types];
+};
+
+export const generatePrismaLogger = (logger: PrismaRepoConfig['prismaLogger']) => {
+  if (_.isBoolean(logger)) {
+    if (logger) return _.values(PRISMA_LOGGER);
+    return [];
+  }
+
+  if (_.isArray(logger)) {
+    return logger;
+  }
+
+  return _.reduce(
+    logger,
+    (curr, value, key) => {
+      if (value) {
+        curr.push(PRISMA_LOGGER[key as keyof typeof PRISMA_LOGGER]);
+      }
+
+      return curr;
+    },
+    [] as PrismaLoggerType[]
+  );
 };
