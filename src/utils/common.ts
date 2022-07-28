@@ -43,12 +43,12 @@ export const loadTsSettings = async () => {
     if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.TS}`)) return {};
 
     await execAsync(
-      `npx tsup ${appRootPath}/${CONFIG_FILE_NAMES.TS} --format esm --clean --outDir .tmp`
+      `npx tsup ${appRootPath}/${CONFIG_FILE_NAMES.TS} --format esm --clean --outDir node_modules/.prisma-repo`
     );
 
-    const settings = (await import(`${appRootPath}/.tmp/${CONFIG_FILE_NAMES.MJS}`)).default;
-
-    fs.removeSync(`${appRootPath}/.tmp`);
+    const settings: PrismaRepoConfig = (
+      await import(`${appRootPath}/node_modules/.prisma-repo/${CONFIG_FILE_NAMES.MJS}`)
+    ).default;
 
     return settings;
   } catch {
