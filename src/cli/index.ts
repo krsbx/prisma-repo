@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import fs from 'fs/promises';
+import fs from 'fs-extra';
 import appRootPath from 'app-root-path';
 import { Command } from 'commander';
-import { APP_TITLE, DEFAULT_CLI_RESULTS } from '../utils/constants';
+import { APP_TITLE, DEFAULT_CLI_RESULTS, DEFAULT_PATH } from '../utils/constants';
 import logger from '../utils/logger';
 import createBaseRepository from './baseRepository';
 import createModelStructures from './models';
@@ -33,7 +33,14 @@ const runCli = async (settings: PrismaRepoConfig) => {
 
   const prisma = await fs.readFile(`${appRootPath}/node_modules/.prisma/client/index.d.ts`, 'utf8');
 
+  const repositoryDirPath = `${appRootPath}/${settings.repositoryPath ?? DEFAULT_PATH.REPOSITORY}`;
+  const repositoryDirExist = fs.existsSync(repositoryDirPath);
+
   try {
+    if (!repositoryDirExist) {
+      await fs.mkdirp(repositoryDirPath);
+    }
+
     if (cliResults.repositories) {
       await createRespositories(prisma, settings);
       return;
