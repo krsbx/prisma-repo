@@ -84,16 +84,22 @@ export const checkIsShouldOverwrite = (
 };
 
 export const generatePrismaLogger = (logger: PrismaRepoConfig['prismaLogger']) => {
+  const convertToString = (value: PrismaLoggerType[]) =>
+    `[${_(value)
+      .map((type) => `'${type}'`)
+      .join(', ')}]`;
+
   if (_.isBoolean(logger)) {
-    if (logger) return _.values(PRISMA_LOGGER);
-    return [];
+    if (logger) return convertToString(_.values(PRISMA_LOGGER));
+
+    return '[]';
   }
 
   if (_.isArray(logger)) {
-    return logger;
+    return convertToString(logger);
   }
 
-  return _.reduce(
+  const loggerSettings = _.reduce(
     logger,
     (curr, value, key) => {
       if (value) {
@@ -104,4 +110,6 @@ export const generatePrismaLogger = (logger: PrismaRepoConfig['prismaLogger']) =
     },
     [] as PrismaLoggerType[]
   );
+
+  return convertToString(loggerSettings);
 };

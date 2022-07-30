@@ -27,8 +27,15 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
     ${BASE_REPOSITORY_MODEL_NAME} = modelName;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  extractCondition(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
+    const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
+
+    return dbCond;
+  }
+
   async findAll(
-    conditions: ${REPOSITORY_TYPE.WHERE},
+    conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
     filterQueryParams: ${INTERFACE_NAME.ANY_RECORD} = {},
     options: ${INTERFACE_NAME.ANY_RECORD} = {},
     include: ${REPOSITORY_TYPE.INCLUDE} = {} as ${REPOSITORY_TYPE.INCLUDE}
@@ -37,23 +44,18 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
     const offset = options.page && options.page > 0 ? limit * (options.page - 1) : 0;
     const otherOptions = _.omit(options, ['limit', 'offset', 'page']);
 
-    const where = { ...conditions, ...filterQueryParams, ...otherOptions };
+    const where = { ...this.extractCondition(conditions), ...filterQueryParams, ...otherOptions };
 
     return {
       // @ts-ignore
-      rows: (await ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].findMany({
+      rows: (await this.model.findMany({
         where,
         ...(!_.isEmpty(include) && { include }),
         skip: offset,
         ...(limit > 0 && { take: limit }),
       })) as ${REPOSITORY_TYPE.MODEL}[],
-      // eslint-disable-next-line no-underscore-dangle
-      count: /* @ts-ignore */ (
-        await ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].aggregate({
-          where,
-          _count: true,
-        })
-      )._count as number,
+      /* @ts-ignore */
+      count: await this.model.count({ where }),
     };
   }
 
@@ -61,11 +63,11 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
     option: ${BASE_REPOSITORY_TYPE.FIND_OPTION} = {}
   ) {
-    const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
-
+    const where = this.extractCondition(conditions);
+    
     // @ts-ignore
-    return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].findFirst({
-      where: dbCond,
+    return this.model.findFirst({
+      where,
       ...option,
     }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
@@ -75,7 +77,7 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
     option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}
   ) {
     // @ts-ignore
-    return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].create({
+    return this.model.create({
       data,
       ...option,
     }) as Promise<${REPOSITORY_TYPE.MODEL}>;
@@ -86,22 +88,22 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
     data: ${BASE_REPOSITORY_TYPE.UPDATE_CREATE_PAYLOAD},
     option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}
   ) {
-    const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
-
+    const where = this.extractCondition(conditions);
+    
     // @ts-ignore
-    return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].update({
+    return this.model.update({
       data,
-      where: dbCond,
+      where,
       ...option,
     }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
 
   async delete(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
-    const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
-
+    const where = this.extractCondition(conditions);
+    
     // @ts-ignore
-    return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].deleteMany({
-      where: dbCond,
+    return this.model.deleteMany({
+      where,
     }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
   }
 
@@ -119,7 +121,7 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
 
   async bulkCreate(data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_CREATE}, skipDuplicates = true) {
     // @ts-ignore
-    return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].createMany({
+    return this.model.createMany({
       data,
       skipDuplicates,
     }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
@@ -127,7 +129,7 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
 
   async bulkUpdate(where: ${REPOSITORY_TYPE.WHERE}, data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_UPDATE}) {
     // @ts-ignore
-    return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}].updateMany({
+    return this.model.updateMany({
       data,
       where,
     }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
