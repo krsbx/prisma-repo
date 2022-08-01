@@ -7,6 +7,7 @@ import {
   EXPORT_TYPE,
   MODELS_CONSTANTS_NAMES,
   MOST_COMMON_TYPE,
+  PRISMA_TYPES,
   TYPES_NAMES,
   TYPE_SUFFIX,
 } from './constants';
@@ -51,12 +52,23 @@ export const extractModelTypes = <T extends string>(
   modelTypes: ModelTypes<T>
 ) => {
   if (line.match(new RegExp(`${EXPORT_TYPE} ${modelName}${suffix}`))) {
-    const lineChunks = line.split(' ');
+    switch (suffix) {
+      case TYPE_SUFFIX.CREATE_INPUT:
+      case TYPE_SUFFIX.UPDATE_INPUT:
+        // eslint-disable-next-line no-param-reassign
+        modelTypes[suffix] =
+          `${PRISMA_TYPES.PRISMA}.${modelName}${suffix} | ${PRISMA_TYPES.PRISMA}.${modelName}Unchecked${suffix}` as ModelTypes<
+            typeof modelName
+          >[typeof suffix];
+        break;
 
-    // eslint-disable-next-line no-param-reassign
-    modelTypes[suffix] = lineChunks[lineChunks.length - 3] as ModelTypes<
-      typeof modelName
-    >[typeof suffix];
+      default:
+        // eslint-disable-next-line no-param-reassign
+        modelTypes[suffix] = `${PRISMA_TYPES.PRISMA}.${modelName}${suffix}` as ModelTypes<
+          typeof modelName
+        >[typeof suffix];
+        break;
+    }
   }
 };
 
@@ -74,7 +86,7 @@ export const getModelTypes = (prisma: string, typeName: string) => {
     extractModelTypes(line, typeName, TYPE_SUFFIX.ORDER_BY_WITH_RELATION_INPUT, modelType);
   });
 
-  modelType.Delegate = `${typeName}${TYPE_SUFFIX.DELEGATE}`;
+  modelType.Delegate = `${PRISMA_TYPES.PRISMA}.${typeName}${TYPE_SUFFIX.DELEGATE}`;
 
   // Stringyfy the model types
   // We need to stringify the model types since for somehow

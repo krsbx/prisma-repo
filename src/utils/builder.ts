@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { toConstantCase } from './common';
-import { MODELS_CONSTANTS_NAMES, PRISMA_TYPES, REPOSITORY_TYPE, TYPES_NAMES } from './constants';
+import { MODELS_CONSTANTS_NAMES, REPOSITORY_TYPE, TYPES_NAMES } from './constants';
 import { ModelTypes } from './interface';
 
 export const repositoryBuilder = <T extends string>(modelName: T) => {
@@ -26,7 +26,7 @@ export default repository;
 export const getModelPrismaType = (value: string | unknown) => {
   if (value === 'unknown') return 'unknown';
 
-  return `${PRISMA_TYPES.PRISMA}.${value}`;
+  return value;
 };
 
 export const repositoryTypeBuilder = <T extends string>(modelName: T, modelType: ModelTypes<T>) => {
