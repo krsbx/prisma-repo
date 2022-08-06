@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { toConstantCase } from './common';
 import { MODELS_CONSTANTS_NAMES, REPOSITORY_TYPE, TYPES_NAMES } from './constants';
-import { ModelTypes } from './interface';
+import { ExtendExpress, ModelTypes } from './interface';
 
 export const repositoryBuilder = <T extends string>(modelName: T) => {
   const repositoryName = _.camelCase(`${modelName}Repository`);
@@ -44,21 +44,27 @@ export const repositoryTypeBuilder = <T extends string>(modelName: T, modelType:
   };`;
 };
 
-export const expressTypesBuilder = (modelsName: string[]) => {
-  const expressTypes = `export {};
+export const expressTypesBuilder = (modelsName: string[], settings?: boolean | ExtendExpress) => {
+  if (!settings) return '';
+
+  const modelNames = _.isBoolean(settings)
+    ? modelsName
+    : modelsName
+        .filter((modelName) => (settings.include ? settings.include.includes(modelName) : true))
+        .filter((modelName) => (settings.exclude ? !settings.exclude.includes(modelName) : true));
+
+  const expressTypes = `import type { ${modelNames.join(', ')} } from '@prisma/client';
 
 declare global {
   namespace Express {
-    import type { ${modelsName.join(', ')} } from '@prisma/client';
-
     interface Request {
-${_.map(modelsName, (modelName) => {
+${_.map(modelNames, (modelName) => {
   const key = _.camelCase(modelName);
 
   let types = '';
 
-  types += `      ${key}?: ${modelName};\n`;
-  types += `      ${key}s?: ${modelName}[] | { rows: ${modelName}[]; count: number };`;
+  types += `      ${key}: ${modelName} | undefined;\n`;
+  types += `      ${key}s: { rows: ${modelName}[]; count: number } | undefined;`;
 
   return types;
 }).join('\n')}
