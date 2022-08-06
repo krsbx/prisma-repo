@@ -61,7 +61,7 @@ repository.setting.ts
 // Path: repository.setting.js
 
 const config = {
-  extendExpress: true, // default false
+  extendExpress: false, // default false
   overwrite: false, // default false
   repositoryPath: 'src/repository', // default 'src/repository'
   typesPath: 'src/types', // default 'src/types'
@@ -79,7 +79,7 @@ module.exports = config;
 import { PrismaRepoConfig } from 'prisma-repo';
 
 const config: PrismaRepoConfig = {
-  extendExpress: true, // default false
+  extendExpress: false, // default false
   overwrite: false, // default false
   repositoryPath: 'src/repository', // default 'src/repository'
   typesPath: 'src/types', // default 'src/types'
@@ -94,7 +94,7 @@ export default config;
 // Path: repository.setting.json
 
 {
-  "extendExpress": true, // default false
+  "extendExpress": false, // default false
   "overwrite": false, // default false
   "repositoryPath": "src/repository", // default 'src/repository'
   "typesPath": "src/types", // default 'src/types'
@@ -102,10 +102,16 @@ export default config;
 }
 ```
 
+## Problem with extendExpress options
+When this enabled, it will extends request object in `express`. Problem that will happen if this was triggered is that it will conflict with other modules, if it was reserved words like `file` and `files` which conflicting with `multer`. Other thing to consider as well is that if you use `include` options in prisma and it will conflict with the types that we extend with `extendExpress` options.
+
 ## Possible values
 Will extends express Request interface so it can be extends with the models name like `req.user` or `req.users`
 ``` ts
-extendsExpress: boolean
+extendExpress: boolean | {
+  include: string[]; // model types to Include
+  exclude: string[]; // model types to Exclued
+}
 ```
 
 Determnie whether `prisma-repo` should overwrite the existed files or not

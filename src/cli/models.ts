@@ -37,7 +37,7 @@ const createModelStructures = async (prisma: string, settings: PrismaRepoConfig)
     const modelStructures = generateModelStructures(modelNames);
     const modelsTypes = getAllModelTypes(prisma, modelNames);
     const modelsPrismaTypes = generateModelsPrismaTypes(modelNames, modelsTypes);
-    const expressTypes = expressTypesBuilder(modelNames);
+    const expressTypes = expressTypesBuilder(modelNames, extendExpress);
     const prismaLoggerSettings = generatePrismaLogger(settings.prismaLogger ?? false);
 
     let models =

@@ -49,9 +49,14 @@ export type PrismaLogger =
     }
   | PrismaLoggerType[];
 
+export type ExtendExpress = {
+  include?: string[];
+  exclude?: string[];
+};
+
 export type PrismaRepoConfig = {
   repositoryPath?: string; // default: './src/repository'
-  extendExpress?: boolean; // default: false
+  extendExpress?: boolean | ExtendExpress; // default: false
   overwrite?: boolean | PrismaRepoOverwrite; // default: false
   typesPath?: string; // default: './src/types'
   prismaLogger?: boolean | PrismaLogger; // default: false
