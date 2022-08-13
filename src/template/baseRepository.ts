@@ -37,12 +37,12 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
   async findAll(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
     filterQueryParams: ${INTERFACE_NAME.ANY_RECORD} = {},
-    options: ${INTERFACE_NAME.ANY_RECORD} = {},
-    include: ${REPOSITORY_TYPE.INCLUDE} = {} as ${REPOSITORY_TYPE.INCLUDE}
+    query: ${INTERFACE_NAME.ANY_RECORD} = {},
+    option: ${BASE_REPOSITORY_TYPE.FIND_OPTION} = {}
   ) {
-    const limit = +(options.limit === 'all' ? 0 : _.get(options, 'limit', 10));
-    const offset = options.page && options.page > 0 ? limit * (options.page - 1) : 0;
-    const otherOptions = _.omit(options, ['limit', 'offset', 'page']);
+    const limit = +(query.limit === 'all' ? 0 : _.get(query, 'limit', 10));
+    const offset = query.page && query.page > 0 ? limit * (query.page - 1) : 0;
+    const otherOptions = _.omit(query, ['limit', 'offset', 'page']);
 
     const where = { ...this.extractCondition(conditions), ...filterQueryParams, ...otherOptions };
 
@@ -50,7 +50,7 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
       // @ts-ignore
       rows: (await this.model.findMany({
         where,
-        ...(!_.isEmpty(include) && { include }),
+        ...option,
         skip: offset,
         ...(limit > 0 && { take: limit }),
       })) as ${REPOSITORY_TYPE.MODEL}[],
