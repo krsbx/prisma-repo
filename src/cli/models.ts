@@ -51,6 +51,9 @@ const createModelStructures = async (prisma: string, settings: PrismaRepoConfig)
     models += `${interfaces.anyRecord}\n\n`;
     models += `${interfaces.baseOption}\n\n`;
     models += `${interfaces.find}\n\n`;
+    models += `${interfaces.countArgs}\n\n`;
+    models += `${interfaces.aggregate}\n\n`;
+    models += `${interfaces.aggregateArgs}\n\n`;
 
     models += `${prismaInstance.prisma(prismaLoggerSettings)}\n\n`;
     models += `${prismaInstance.models}\n\n`;

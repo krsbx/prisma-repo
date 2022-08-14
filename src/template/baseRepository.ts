@@ -16,7 +16,7 @@ const baseRepository = `/* eslint-disable @typescript-eslint/ban-ts-comment */
 
 ${IMPORT_LIBRARY.LODASH}
 ${IMPORT_LIBRARY.PRISMA}
-import { ${INSTANCE_NAME.MODELS}, ${TYPES_NAMES.MODEL_NAME}, ${TYPES_NAMES.MODEL_STRUCTURE}, ${TYPES_NAMES.MODEL_SCALAR_FIELDS}, ${INTERFACE_NAME.ANY_RECORD}, ${INTERFACE_NAME.FIND}, ${INTERFACE_NAME.BASE_OPTION}, ${TYPES_NAMES.MODEL_TYPES} } from './models';
+import { ${INSTANCE_NAME.MODELS}, ${TYPES_NAMES.MODEL_NAME}, ${TYPES_NAMES.MODEL_STRUCTURE}, ${TYPES_NAMES.MODEL_SCALAR_FIELDS}, ${INTERFACE_NAME.ANY_RECORD}, ${INTERFACE_NAME.BASE_OPTION}, ${INTERFACE_NAME.FIND}, ${INTERFACE_NAME.COUNT_ARGS}, ${TYPES_NAMES.MODEL_TYPES} } from './models';
 
 /**
  * @param model - The model name
@@ -28,13 +28,13 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  extractCondition(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
+  private extractCondition(conditions: ${REPOSITORY_TYPE.CURSOR} | ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
     const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
 
     return dbCond;
   }
 
-  async findAll(
+  public async findAll(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
     filterQueryParams: ${INTERFACE_NAME.ANY_RECORD} = {},
     query: ${INTERFACE_NAME.ANY_RECORD} = {},
@@ -55,59 +55,61 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
         ...(limit > 0 && { take: limit }),
       })) as ${REPOSITORY_TYPE.MODEL}[],
       /* @ts-ignore */
-      count: await this.model.count({ where }),
+      count: await this.count({ where }),
     };
   }
 
-  async findOne(
+  public async findOne(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
     option: ${BASE_REPOSITORY_TYPE.FIND_OPTION} = {}
   ) {
     const where = this.extractCondition(conditions);
-    
+
     // @ts-ignore
-    return this.model.findFirst({
-      where,
-      ...option,
-    }) as Promise<${REPOSITORY_TYPE.MODEL}>;
+    return this.model.findFirst({ where, ...option }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
 
-  async create(
-    data: ${REPOSITORY_TYPE.CREATE},
+  public async findUnique(
+    conditions: ${REPOSITORY_TYPE.CURSOR} | number | string, 
     option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}
   ) {
+    const where = this.extractCondition(conditions);
+
     // @ts-ignore
-    return this.model.create({
-      data,
-      ...option,
-    }) as Promise<${REPOSITORY_TYPE.MODEL}>;
+    return this.model.findUnique({ where, ...option }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
 
-  async update(
+  public async create(data: ${REPOSITORY_TYPE.CREATE}, option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}) {
+    // @ts-ignore
+    return this.model.create({ data, ...option, }) as Promise<${REPOSITORY_TYPE.MODEL}>;
+  }
+
+  public async update(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
     data: ${BASE_REPOSITORY_TYPE.UPDATE_CREATE_PAYLOAD},
     option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}
   ) {
     const where = this.extractCondition(conditions);
-    
+
     // @ts-ignore
-    return this.model.update({
-      data,
-      where,
-      ...option,
-    }) as Promise<${REPOSITORY_TYPE.MODEL}>;
+    return this.model.update({ data, where, ...option, }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
 
-  async delete(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
+  public async delete(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
     const where = this.extractCondition(conditions);
-    
+
     // @ts-ignore
-    return this.model.deleteMany({
-      where,
-    }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
+    return this.model.deleteMany({ where }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
   }
 
-  async updateOrCreate(
+  public async deleteOne(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
+    const where = this.extractCondition(conditions);
+
+    // @ts-ignore
+    return this.model.delete({ where }) as Promise<${REPOSITORY_TYPE.MODEL}>;
+  }
+
+  public async updateOrCreate(
     conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
     data: ${REPOSITORY_TYPE.CREATE},
     option: ${BASE_REPOSITORY_TYPE.FIND_OPTION} = {}
@@ -119,23 +121,33 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
     return this.create(data);
   }
 
-  async bulkCreate(data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_CREATE}, skipDuplicates = true) {
+  public async bulkCreate(data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_CREATE}, skipDuplicates = true) {
     // @ts-ignore
-    return this.model.createMany({
-      data,
-      skipDuplicates,
-    }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
+    return this.model.createMany({ data, skipDuplicates }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
   }
 
-  async bulkUpdate(where: ${REPOSITORY_TYPE.WHERE}, data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_UPDATE}) {
+  public async bulkUpdate(where: ${REPOSITORY_TYPE.WHERE}, data: ${BASE_REPOSITORY_TYPE.ENUMERABLE_UPDATE}) {
     // @ts-ignore
-    return this.model.updateMany({
-      data,
-      where,
-    }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
+    return this.model.updateMany({ data, where }) as Promise<${PRISMA_TYPES.BATCH_PAYLOAD}>;
   }
 
-  get model(): Delegate {
+  public async count(
+    conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
+    option: ${BASE_REPOSITORY_TYPE.COUNT_OPTION} = {}
+  ) {
+    const where = this.extractCondition(conditions);
+
+    // @ts-ignore
+    return this.model.count({ where, ...option }) as number;
+  }
+
+  // @ts-ignore
+  public get aggregate(): Delegate['aggregate'] {
+    // @ts-ignore
+    return this.model.aggregate;
+  }
+
+  public get model(): Delegate {
     // @ts-ignore
     return ${INSTANCE_NAME.MODELS}[${BASE_REPOSITORY_MODEL_NAME}];
   }
