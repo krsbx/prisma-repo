@@ -150,7 +150,7 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
     const aggregate = this.model.aggregate as Delegate['aggregate'];
     const where = this.extractCondition(conditions);
 
-    if (!_.isEmpty(aggregator)) {
+    if (_.isEmpty(aggregator)) {
       // @ts-ignore
       // eslint-disable-next-line no-param-reassign, no-underscore-dangle
       aggregator._count = true;
