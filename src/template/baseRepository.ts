@@ -16,7 +16,7 @@ const baseRepository = `/* eslint-disable @typescript-eslint/ban-ts-comment */
 
 ${IMPORT_LIBRARY.LODASH}
 ${IMPORT_LIBRARY.PRISMA}
-import { ${INSTANCE_NAME.MODELS}, ${TYPES_NAMES.MODEL_NAME}, ${TYPES_NAMES.MODEL_STRUCTURE}, ${TYPES_NAMES.MODEL_SCALAR_FIELDS}, ${INTERFACE_NAME.ANY_RECORD}, ${INTERFACE_NAME.BASE_OPTION}, ${INTERFACE_NAME.FIND}, ${INTERFACE_NAME.COUNT_ARGS}, ${TYPES_NAMES.MODEL_TYPES} } from './models';
+import { ${INSTANCE_NAME.MODELS}, ${TYPES_NAMES.MODEL_NAME}, ${TYPES_NAMES.MODEL_STRUCTURE}, ${TYPES_NAMES.MODEL_SCALAR_FIELDS}, ${INTERFACE_NAME.ANY_RECORD}, ${INTERFACE_NAME.BASE_OPTION}, ${INTERFACE_NAME.FIND}, ${INTERFACE_NAME.COUNT_ARGS}, ${INTERFACE_NAME.AGGREGATE}, ${TYPES_NAMES.MODEL_TYPES} } from './models';
 
 /**
  * @param model - The model name
@@ -70,7 +70,7 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
   }
 
   public async findUnique(
-    conditions: ${REPOSITORY_TYPE.CURSOR} | number | string, 
+    conditions: ${REPOSITORY_TYPE.CURSOR} | number | string,
     option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}
   ) {
     const where = this.extractCondition(conditions);
@@ -81,7 +81,7 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
 
   public async create(data: ${REPOSITORY_TYPE.CREATE}, option: ${BASE_REPOSITORY_TYPE.CREATE_UPDATE_OPTION} = {}) {
     // @ts-ignore
-    return this.model.create({ data, ...option, }) as Promise<${REPOSITORY_TYPE.MODEL}>;
+    return this.model.create({ data, ...option }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
 
   public async update(
@@ -92,7 +92,7 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
     const where = this.extractCondition(conditions);
 
     // @ts-ignore
-    return this.model.update({ data, where, ...option, }) as Promise<${REPOSITORY_TYPE.MODEL}>;
+    return this.model.update({ data, where, ...option }) as Promise<${REPOSITORY_TYPE.MODEL}>;
   }
 
   public async delete(conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS}) {
@@ -138,13 +138,26 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
     const where = this.extractCondition(conditions);
 
     // @ts-ignore
-    return this.model.count({ where, ...option }) as number;
+    return this.model.count({ where, ...option }) as Promise<number>;
   }
 
-  // @ts-ignore
-  public get aggregate(): Delegate['aggregate'] {
+  public aggregate(
+    conditions: ${BASE_REPOSITORY_TYPE.QUERY_CONDITIONS},
+    aggregator: ${BASE_REPOSITORY_TYPE.AGGREGATE},
+    option: ${BASE_REPOSITORY_TYPE.AGGREGATE_OPTION} = {}
+  ) {
     // @ts-ignore
-    return this.model.aggregate;
+    const aggregate = this.model.aggregate as Delegate['aggregate'];
+    const where = this.extractCondition(conditions);
+
+    if (!_.isEmpty(aggregator)) {
+      // @ts-ignore
+      // eslint-disable-next-line no-param-reassign, no-underscore-dangle
+      aggregator._count = true;
+    }
+
+    // @ts-ignore
+    return aggregate({ where, ...aggregator, ...option }) as ReturnType<typeof aggregate>;
   }
 
   public get model(): Delegate {
