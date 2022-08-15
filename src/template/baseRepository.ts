@@ -55,7 +55,7 @@ export class BaseRepository<${BASE_REPOSITORY_BASE_TYPE.CONSTRUCTOR}> {
         ...(limit > 0 && { take: limit }),
       })) as ${REPOSITORY_TYPE.MODEL}[],
       /* @ts-ignore */
-      count: await this.count({ where }),
+      count: await this.count(where),
     };
   }
 
