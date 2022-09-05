@@ -1,15 +1,14 @@
 import _ from 'lodash';
 import { toConstantCase } from './common';
-import { MODELS_CONSTANTS_NAMES, REPOSITORY_TYPE, TYPES_NAMES } from './constants';
+import { CLASS_NAME, MODELS_CONSTANTS_NAMES, REPOSITORY_TYPE, TYPES_NAMES } from './constants';
 import { ExtendExpress, ModelTypes } from './interface';
 
-export const repositoryBuilder = <T extends string>(modelName: T) => {
-  const repositoryName = _.camelCase(`${modelName}Repository`);
+export const repositoryBuilder = <T extends string>(modelName: T) =>
+  `class ${modelName} extends ${
+    CLASS_NAME.BASE_REPOSITORY
+  }(${MODELS_CONSTANTS_NAMES}.${toConstantCase(modelName)}) {}
 
-  return `const ${repositoryName} = factory(${MODELS_CONSTANTS_NAMES}.${toConstantCase(
-    modelName
-  )});`;
-};
+export default ${modelName};`;
 
 export const repositoryExtendsBuilder = <T extends string>(modelName: T) => {
   const extendedRepository = `${_.camelCase(modelName)}Repository`;

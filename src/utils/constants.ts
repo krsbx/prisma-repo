@@ -169,3 +169,8 @@ export const PRISMA_LOGGER = {
   WARN: 'warn',
   ERROR: 'error',
 } as const;
+
+export const CLASS_NAME = {
+  BASE_REPOSITORY: 'BaseRepository',
+  ABSTRACT_BASE_REPOSITORY: 'AbstractBaseRepository',
+} as const;

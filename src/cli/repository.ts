@@ -5,7 +5,7 @@ import fs from 'fs-extra';
 import appRootPath from 'app-root-path';
 import { importer } from '../template/repository';
 import { checkIsShouldOverwrite, isModelExists } from '../utils/common';
-import { repositoryBuilder, repositoryExtendsBuilder } from '../utils/builder';
+import { repositoryBuilder } from '../utils/builder';
 import logger from '../utils/logger';
 import createModelStructures from './models';
 import createBaseRepository from './baseRepository';
@@ -34,12 +34,10 @@ const createRepository = async (prisma: string, modelName: string, settings: Pri
   try {
     let model = '';
 
-    model += `${importer.lodash}\n`;
     model += `${importer.types}\n`;
-    model += `${importer.factory}\n\n`;
+    model += `${importer.baseRepository}\n\n`;
 
-    model += `${repositoryBuilder(modelName)}\n\n`;
-    model += `${repositoryExtendsBuilder(modelName)}`;
+    model += `${repositoryBuilder(modelName)}\n`;
 
     if (!directoryExists) {
       await fs.mkdir(repositoryDirPath);
