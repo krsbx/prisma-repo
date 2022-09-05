@@ -1,8 +1,8 @@
-import { IMPORT_LIBRARY, MODELS_CONSTANTS_NAMES } from '../utils/constants';
+import { CLASS_NAME, IMPORT_LIBRARY, MODELS_CONSTANTS_NAMES } from '../utils/constants';
 
 export const importer = {
   lodash: IMPORT_LIBRARY.LODASH,
   prisma: IMPORT_LIBRARY.PRISMA,
-  factory: `import factory from './baseRepository';`,
+  baseRepository: `import ${CLASS_NAME.BASE_REPOSITORY} from './baseRepository';`,
   types: `import { ${MODELS_CONSTANTS_NAMES} } from './models';`,
 } as const;
