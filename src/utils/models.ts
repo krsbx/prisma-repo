@@ -107,7 +107,7 @@ export const generateModelNameConstants = (modelNames: string[]) => {
     modelNames,
     (curr, value) => ({
       ...curr,
-      [toConstantCase(value)]: _.camelCase(value),
+      [toConstantCase(value)]: value[0].toLowerCase() + value.substring(1),
     }),
     {}
   );
