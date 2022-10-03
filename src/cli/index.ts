@@ -9,11 +9,14 @@ import createModelStructures from './models';
 import createRepository from './repository';
 import createRespositories from './repositories';
 import { PrismaRepoConfig } from '../utils/interface';
+import { getSettings, getSettingsFromPath } from '../utils/common';
 
-const runCli = async (settings: PrismaRepoConfig) => {
+const runCli = async () => {
   const program = new Command().name(APP_TITLE);
 
   let cliResults = DEFAULT_CLI_RESULTS;
+
+  let settings: PrismaRepoConfig = {};
 
   program
     .description('Use Prisma with repository pattern')
@@ -24,12 +27,16 @@ const runCli = async (settings: PrismaRepoConfig) => {
     )
     .option('--base-repository', 'Create a base repository', false)
     .option('--model-structures', 'Update model.ts with the generated structures', false)
+    .option('--settings <settings>', 'Use specific settings from args', '')
     .parse(process.argv);
+
+  cliResults = program.opts();
 
   const modelname = program.args[0];
   if (!_.isEmpty(modelname)) cliResults.modelname = modelname;
 
-  cliResults = program.opts();
+  if (cliResults.settings.trim() !== '') settings = await getSettingsFromPath(cliResults.settings);
+  else settings = await getSettings();
 
   const prisma = await fs.readFile(`${appRootPath}/node_modules/.prisma/client/index.d.ts`, 'utf8');
 

@@ -18,8 +18,10 @@ export const isModelExists = (prisma: string, modelName: string) => {
 
 export const execAsync = promisify(exec);
 
-export const loadJsonSettings = async () => {
+export const loadJsonSettings = async (path = '') => {
   try {
+    if (fs.existsSync(path)) return (await fs.readJson(path)) as PrismaRepoConfig;
+
     if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.JSON}`)) return {};
 
     return (await fs.readJson(`${appRootPath}/${CONFIG_FILE_NAMES.JSON}`)) as PrismaRepoConfig;
@@ -28,8 +30,10 @@ export const loadJsonSettings = async () => {
   }
 };
 
-export const loadJsSettings = async () => {
+export const loadJsSettings = async (path = '') => {
   try {
+    if (fs.existsSync(path)) return (await import(path)).default;
+
     if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.JS}`)) return {};
 
     return (await import(`${appRootPath}/${CONFIG_FILE_NAMES.JS}`)).default;
@@ -38,8 +42,18 @@ export const loadJsSettings = async () => {
   }
 };
 
-export const loadTsSettings = async () => {
+export const loadTsSettings = async (path = '') => {
   try {
+    if (fs.existsSync(path)) {
+      await execAsync(`npx tsup ${path} --format esm --clean --outDir node_modules/.prisma-repo`);
+
+      const settings: PrismaRepoConfig = (
+        await import(`${appRootPath}/node_modules/.prisma-repo/${CONFIG_FILE_NAMES.MJS}`)
+      ).default;
+
+      return settings;
+    }
+
     if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.TS}`)) return {};
 
     await execAsync(
@@ -67,6 +81,32 @@ export const getSettings = async () => {
 
   if (_.isEmpty(settings)) {
     settings = await loadTsSettings();
+  }
+
+  return settings;
+};
+
+export const getSettingsFromPath = async (path: string) => {
+  let settings: PrismaRepoConfig = {};
+
+  const fileName = path.split('/').pop();
+
+  if (!_.includes(CONFIG_FILE_NAMES, fileName)) return settings;
+
+  switch (fileName) {
+    case CONFIG_FILE_NAMES.JS:
+      settings = await loadJsSettings(path);
+      break;
+
+    case CONFIG_FILE_NAMES.TS:
+      settings = await loadTsSettings(path);
+      break;
+
+    case CONFIG_FILE_NAMES.JSON:
+      settings = await loadJsonSettings(path);
+      break;
+
+    default:
   }
 
   return settings;
