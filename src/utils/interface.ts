@@ -31,6 +31,7 @@ export type CliResults = {
   repositories: boolean;
   baseRepository: boolean;
   modelStructures: boolean;
+  settings: string;
 };
 
 export type PrismaRepoOverwrite = {

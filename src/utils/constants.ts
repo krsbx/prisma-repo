@@ -72,6 +72,7 @@ export const APP_TITLE = 'PRISMA REPO GENERATOR';
 
 export const DEFAULT_CLI_RESULTS: CliResults = {
   modelname: '',
+  settings: '',
   repositories: false,
   baseRepository: false,
   modelStructures: false,
