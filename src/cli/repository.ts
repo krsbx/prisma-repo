@@ -40,7 +40,7 @@ const createRepository = async (prisma: string, modelName: string, settings: Pri
     model += `${repositoryBuilder(modelName)}\n`;
 
     if (!directoryExists) {
-      await fs.mkdir(repositoryDirPath);
+      await fs.mkdirp(repositoryDirPath);
     }
 
     if (isShouldOverwrite || !fileExists) {

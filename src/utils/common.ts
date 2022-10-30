@@ -3,7 +3,13 @@ import fs from 'fs-extra';
 import { promisify } from 'util';
 import { exec } from 'child_process';
 import appRootPath from 'app-root-path';
-import { CONFIG_FILE_NAMES, EXPORT_TYPE, MOST_COMMON_TYPE, PRISMA_LOGGER } from './constants';
+import {
+  CONFIG_FILE_NAMES,
+  EXPORT_TYPE,
+  MOST_COMMON_TYPE,
+  PACKAGE_NAME,
+  PRISMA_LOGGER,
+} from './constants';
 import { PrismaLoggerType, PrismaRepoConfig, PrismaRepoOverwrite } from './interface';
 
 export const toConstantCase = (value: string) => _.upperCase(value).replace(/ /g, '_');
@@ -45,10 +51,12 @@ export const loadJsSettings = async (path = '') => {
 export const loadTsSettings = async (path = '') => {
   try {
     if (fs.existsSync(path)) {
-      await execAsync(`npx tsup ${path} --format esm --clean --outDir node_modules/.prisma-repo`);
+      await execAsync(
+        `npx tsup ${path} --format esm --clean --outDir node_modules/.${PACKAGE_NAME}`
+      );
 
       const settings: PrismaRepoConfig = (
-        await import(`${appRootPath}/node_modules/.prisma-repo/${CONFIG_FILE_NAMES.MJS}`)
+        await import(`${appRootPath}/node_modules/.${PACKAGE_NAME}/${CONFIG_FILE_NAMES.MJS}`)
       ).default;
 
       return settings;
@@ -57,11 +65,11 @@ export const loadTsSettings = async (path = '') => {
     if (!fs.existsSync(`${appRootPath}/${CONFIG_FILE_NAMES.TS}`)) return {};
 
     await execAsync(
-      `npx tsup ${appRootPath}/${CONFIG_FILE_NAMES.TS} --format esm --clean --outDir node_modules/.prisma-repo`
+      `npx tsup ${appRootPath}/${CONFIG_FILE_NAMES.TS} --format esm --clean --outDir node_modules/.${PACKAGE_NAME}`
     );
 
     const settings: PrismaRepoConfig = (
-      await import(`${appRootPath}/node_modules/.prisma-repo/${CONFIG_FILE_NAMES.MJS}`)
+      await import(`${appRootPath}/node_modules/.${PACKAGE_NAME}/${CONFIG_FILE_NAMES.MJS}`)
     ).default;
 
     return settings;
