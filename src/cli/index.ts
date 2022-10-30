@@ -35,7 +35,7 @@ const runCli = async () => {
   const modelname = program.args[0];
   if (!_.isEmpty(modelname)) cliResults.modelname = modelname;
 
-  if (_.isEmpty(cliResults.settings)) settings = await getSettingsFromPath(cliResults.settings);
+  if (!_.isEmpty(cliResults.settings)) settings = await getSettingsFromPath(cliResults.settings);
   else settings = await getSettings();
 
   const prisma = await fs.readFile(`${appRootPath}/node_modules/.prisma/client/index.d.ts`, 'utf8');

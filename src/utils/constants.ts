@@ -175,3 +175,5 @@ export const CLASS_NAME = {
   BASE_REPOSITORY: 'BaseRepository',
   ABSTRACT_BASE_REPOSITORY: 'AbstractBaseRepository',
 } as const;
+
+export const PACKAGE_NAME = 'prisma-repo' as const;

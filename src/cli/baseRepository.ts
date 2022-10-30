@@ -25,7 +25,7 @@ const createBaseRepository = async (prisma: string, settings: PrismaRepoConfig) 
 
   try {
     if (!directoryExists) {
-      await fs.mkdir(repositoryDirPath);
+      await fs.mkdirp(repositoryDirPath);
     }
 
     if (isShouldOverwrite || !fileExists) {
