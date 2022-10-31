@@ -16,7 +16,6 @@ import {
   MODEL_DELEGATE,
   MODEL_NAME,
   MODEL_SCALAR_FIELDS,
-  PACKAGE_NAME,
 } from '../utils/constants';
 import { PrismaRepoConfig } from '../utils/interface';
 import { expressTypesBuilder } from '../utils/builder';
@@ -24,9 +23,9 @@ import { generatePrismaLogger } from '../utils/common';
 
 const createModelStructures = async (prisma: string, settings: PrismaRepoConfig) => {
   const spinner = ora('Creating model structures..\n.').start();
-  const { typesPath, extendExpress } = settings;
+  const { repositoryPath, typesPath, extendExpress } = settings;
 
-  const repositoryDirPath = `${appRootPath}/node_modules/${PACKAGE_NAME}/generated`;
+  const repositoryDirPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH.REPOSITORY}`;
   const typesDirPath = `${appRootPath}/${typesPath ?? DEFAULT_PATH.TYPES}`;
 
   const filePath = `${repositoryDirPath}/${FILES_NAME.MODELS}`;
