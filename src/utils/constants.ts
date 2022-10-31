@@ -149,9 +149,11 @@ export const DEFAULT_PATH = {
   TYPES: 'src/types',
 } as const;
 
+export const PACKAGE_NAME = 'prisma-repo' as const;
+
 export const FILES_NAME = {
   BASE_REPOSITORY: 'baseRepository.ts',
-  MODELS: 'models.ts',
+  MODELS: `${PACKAGE_NAME}.ts`,
   TYPES: {
     EXPRESS: 'express.d.ts',
   },
@@ -175,5 +177,3 @@ export const CLASS_NAME = {
   BASE_REPOSITORY: 'BaseRepository',
   ABSTRACT_BASE_REPOSITORY: 'AbstractBaseRepository',
 } as const;
-
-export const PACKAGE_NAME = 'prisma-repo' as const;
