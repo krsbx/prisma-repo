@@ -24,7 +24,7 @@ export const getAllModelTypes = (prisma: string, modelNames: string[]) => {
   const modelsTypes: { key: string; value: PR.ModelTypes<string> }[] = _.map(
     modelNames,
     (modelName) => ({
-      key: modelName,
+      key: _.camelCase(modelName),
       value: getModelTypes(prisma, modelName),
     })
   );

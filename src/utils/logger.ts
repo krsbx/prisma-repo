@@ -1,18 +1,20 @@
+import ora from 'ora';
 import chalk from 'chalk';
 
-const logger = {
+export const oras = ora;
+export const chalks = chalk;
+
+export const logger = {
   error: (...args: unknown[]) => {
-    console.log(chalk.red(...args));
+    console.log(chalks.red(...args));
   },
   warn: (...args: unknown[]) => {
-    console.log(chalk.yellow(...args));
+    console.log(chalks.yellow(...args));
   },
   info: (...args: unknown[]) => {
-    console.log(chalk.cyan(...args));
+    console.log(chalks.cyan(...args));
   },
   success: (...args: unknown[]) => {
-    console.log(chalk.green(...args));
+    console.log(chalks.green(...args));
   },
 };
-
-export default logger;
