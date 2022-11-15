@@ -17,6 +17,12 @@ import {
   ModelTypes,
 } from './prisma-repo';
 
+export const extractCondition = <Cursor, Where>(conditions: Cursor | Where | number | string) => {
+  const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
+
+  return dbCond;
+};
+
 /**
  * @param modelName - The model name
  */
@@ -39,12 +45,10 @@ const BaseRepository = <
   abstract class AbstractBaseRepository {
     protected static modelName: T = modelName;
 
-    // eslint-disable-next-line class-methods-use-this
-    private static extractCondition(conditions: Cursor | Where | number | string) {
-      const dbCond = _.isObject(conditions) ? conditions : { id: _.toNumber(conditions) };
-
-      return dbCond;
-    }
+    /**
+     * Find zero or more `model` that matches the filter.\
+     * Note, that providing `undefined` is treated as the value not being there.
+     */
 
     public static async findAll(
       conditions: Where | number | string,
@@ -57,7 +61,7 @@ const BaseRepository = <
       const otherOptions = _.omit(query, ['limit', 'offset', 'page']);
 
       const where = {
-        ...AbstractBaseRepository.extractCondition(conditions),
+        ...extractCondition(conditions),
         ...filterQueryParams,
         ...otherOptions,
       };
@@ -75,55 +79,105 @@ const BaseRepository = <
       };
     }
 
+    /**
+     * Alternative of `findAll`.\
+     * It works same as `findOne` but only have different names.\
+     * It exists for anyone who prefer to use prisma `functions` original name.
+     */
+
+    public static async findMany(...params: Parameters<typeof this.findAll>) {
+      return AbstractBaseRepository.findAll(...params);
+    }
+
+    /**
+     * Find the first `model` that matches the filter.\
+     * Note, that providing `undefined` is treated as the value not being there.
+     */
+
     public static async findOne(
       conditions: Where | number | string,
       option: Find<Select, Include, Cursor, Order, Scalar> = {}
     ) {
-      const where = AbstractBaseRepository.extractCondition(conditions);
+      const where = extractCondition(conditions);
 
       // @ts-ignore
       return AbstractBaseRepository.model.findFirst({ where, ...option }) as Promise<Model | null>;
     }
 
+    /**
+     * Alternative of `findOne`.\
+     * It works same as `findOne` but only have different names.\
+     * It exists for anyone who prefer to use prisma `functions` original name.
+     */
+    public static async findFirst(...params: Parameters<typeof this.findOne>) {
+      return AbstractBaseRepository.findOne(...params);
+    }
+
+    /**
+     * Find zero or one `model` that matches the filter.\
+     * Note, that providing `undefined` is treated as the value not being there.\
+     * It works same as `findOne` or `findFirst` but only accept a unique column.
+     */
+
     public static async findUnique(
       conditions: Cursor | number | string,
       option: BaseOption<Include, Select> = {}
     ) {
-      const where = AbstractBaseRepository.extractCondition(conditions);
+      const where = extractCondition(conditions);
 
       // @ts-ignore
       return AbstractBaseRepository.model.findUnique({ where, ...option }) as Promise<Model | null>;
     }
+
+    /**
+     * Create a `model`.
+     */
 
     public static async create(data: Create, option: BaseOption<Include, Select> = {}) {
       // @ts-ignore
       return AbstractBaseRepository.model.create({ data, ...option }) as Promise<Model>;
     }
 
+    /**
+     * Update a `model`.
+     */
+
     public static async update(
       conditions: Where | number | string,
       data: Update | Create,
       option: BaseOption<Include, Select> = {}
     ) {
-      const where = AbstractBaseRepository.extractCondition(conditions);
+      const where = extractCondition(conditions);
 
       // @ts-ignore
       return AbstractBaseRepository.model.update({ data, where, ...option }) as Promise<Model>;
     }
 
+    /**
+     * Delete any `model` that match with the conditions.
+     */
+
     public static async delete(conditions: Where | number | string) {
-      const where = AbstractBaseRepository.extractCondition(conditions);
+      const where = extractCondition(conditions);
 
       // @ts-ignore
       return AbstractBaseRepository.model.deleteMany({ where }) as Promise<Prisma.BatchPayload>;
     }
 
+    /**
+     * Delete a `model`.
+     */
+
     public static async deleteOne(conditions: Where | number | string) {
-      const where = AbstractBaseRepository.extractCondition(conditions);
+      const where = extractCondition(conditions);
 
       // @ts-ignore
       return AbstractBaseRepository.model.delete({ where }) as Promise<Model>;
     }
+
+    /**
+     * Create or update one `model`.
+     */
 
     public static async updateOrCreate(
       conditions: Where | number | string,
@@ -137,6 +191,18 @@ const BaseRepository = <
       return AbstractBaseRepository.create(data);
     }
 
+    /**
+     * Alternative of `updateOrCreate`.\
+     * It works same as `updateOrCreate` but only have different names.\
+     * It exists for anyone who prefer to use prisma `functions` original name.
+     */
+    public static async upsert(...params: Parameters<typeof this.updateOrCreate>) {
+      return AbstractBaseRepository.updateOrCreate(...params);
+    }
+
+    /**
+     * Create many `model`.
+     */
     public static async bulkCreate(data: Prisma.Enumerable<Create>, skipDuplicates = true) {
       // @ts-ignore
       return AbstractBaseRepository.model.createMany({
@@ -144,6 +210,20 @@ const BaseRepository = <
         skipDuplicates,
       }) as Promise<Prisma.BatchPayload>;
     }
+
+    /**
+     * Alternative of `bulkCreate`.\
+     * It works same as `bulkCreate` but only have different names.\
+     * It exists for anyone who prefer to use prisma `functions` original name.
+     */
+    public static async createMany(...params: Parameters<typeof this.bulkCreate>) {
+      return AbstractBaseRepository.bulkCreate(...params);
+    }
+
+    /**
+     * Update zero or more `model`.
+     * Note, that providing `undefined` is treated as the value not being there.
+     */
 
     public static async bulkUpdate(where: Where, data: Prisma.Enumerable<Update>) {
       // @ts-ignore
@@ -153,28 +233,67 @@ const BaseRepository = <
       }) as Promise<Prisma.BatchPayload>;
     }
 
+    /**
+     * Alternative of `bulkUpdate`.\
+     * It works same as `bulkUpdate` but only have different names.\
+     * It exists for anyone who prefer to use prisma `functions` original name.
+     */
+    public static async updateMany(...params: Parameters<typeof this.bulkUpdate>) {
+      return AbstractBaseRepository.bulkUpdate(...params);
+    }
+
+    /**
+     * Count the number of `model`.\
+     * Note, that providing `undefined` is treated as the value not being there.
+     */
+
     public static async count(
       conditions: Where | number | string,
       option: CountArgs<Select, Cursor, Order, Scalar> = {}
     ) {
-      const where = AbstractBaseRepository.extractCondition(conditions);
+      const where = extractCondition(conditions);
 
       // @ts-ignore
       return AbstractBaseRepository.model.count({ where, ...option }) as Promise<number>;
     }
+
+    public static async groupBy(
+      conditions: Where | number | string,
+      aggregator: Omit<
+        // @ts-ignore
+        Parameters<typeof this.model.aggregate>[0],
+        'where' | 'cursor'
+      > & {
+        groupBy: Scalar[];
+      }
+    ) {
+      const where = extractCondition(conditions);
+
+      // @ts-ignore
+      return AbstractBaseRepository.model.groupBy({
+        where,
+        ...aggregator,
+      });
+    }
+
+    /**
+     * Allows you to perform aggregations operations on a `model`.\
+     * Note, that providing `undefined` is treated as the value not being there.\
+     * If no any kind of aggregator provided, will use `count` by default.
+     */
 
     public static aggregate(
       conditions: Where | number | string,
       aggregator: Omit<
         // @ts-ignore
         Parameters<typeof this.model.aggregate>[0],
-        'cursor' | 'take' | 'skip' | 'orderBy'
+        'cursor' | 'take' | 'skip' | 'orderBy' | 'where'
       >,
       option: Aggregate<Cursor, Order, Scalar> = {}
     ) {
       // @ts-ignore
       const aggregate = AbstractBaseRepository.model.aggregate as Delegate['aggregate'];
-      const where = AbstractBaseRepository.extractCondition(conditions);
+      const where = extractCondition(conditions);
 
       if (_.isEmpty(aggregator)) {
         // @ts-ignore
