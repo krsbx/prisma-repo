@@ -1,3 +1,3 @@
-import { PrismaRepoConfig, PrismaRepoOverwrite } from './src/utils/interface';
+import { PrismaRepoConfig, PrismaRepoOverwrite } from './src/types/prisma-repo';
 
 export { PrismaRepoConfig, PrismaRepoOverwrite };
