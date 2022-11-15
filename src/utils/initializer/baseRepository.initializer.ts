@@ -1,19 +1,16 @@
-import ora from 'ora';
-import chalk from 'chalk';
+import path from 'path';
 import fs from 'fs-extra';
 import appRootPath from 'app-root-path';
-import logger from '../utils/logger';
-import createModelStructures from './models';
-import baseRepository from '../template/baseRepository';
-import { PrismaRepoConfig } from '../utils/interface';
-import { DEFAULT_PATH, FILES_NAME } from '../utils/constants';
-import { checkIsShouldOverwrite } from '../utils/common';
+import { logger, chalks, oras } from 'utils/logger';
+import { checkShouldOverwrite } from 'utils/helper/checker.helper';
+import { DEFAULT_PATH, FILES_NAME, PKG_ROOT } from 'utils/constants';
+import { createModelStructures } from './prismaRepo.initializer';
 
-const createBaseRepository = async (prisma: string, settings: PrismaRepoConfig) => {
-  const spinner = ora('Creating base repository...\n').start();
+export const createBaseRepository = async (prisma: string, settings: PR.PrismaRepoConfig) => {
+  const spinner = oras('Creating base repository...\n').start();
   const { repositoryPath, overwrite } = settings;
 
-  const isShouldOverwrite = checkIsShouldOverwrite(overwrite, 'baseRepository');
+  const isShouldOverwrite = checkShouldOverwrite(overwrite, 'repository');
 
   const repositoryDirPath = `${appRootPath}/${repositoryPath ?? DEFAULT_PATH.REPOSITORY}`;
   const filePath = `${repositoryDirPath}/${FILES_NAME.BASE_REPOSITORY}`;
@@ -23,28 +20,28 @@ const createBaseRepository = async (prisma: string, settings: PrismaRepoConfig) 
   const directoryExists = fs.existsSync(repositoryDirPath);
   const modelsExists = fs.existsSync(modelsPath);
 
+  const rootDir = path.join(PKG_ROOT, 'template');
+
   try {
     if (!directoryExists) {
       await fs.mkdirp(repositoryDirPath);
     }
 
     if (isShouldOverwrite || !fileExists) {
-      await fs.writeFile(filePath, baseRepository);
+      await fs.copy(path.join(rootDir, FILES_NAME.BASE_REPOSITORY), filePath);
     } else {
-      spinner.fail(`baseRepository already exists`);
+      spinner.fail(`Base Repository already exists`);
       spinner.fail(`Overwriting is disabled by default, enable it in the config file`);
       return;
     }
 
-    spinner.succeed(chalk.green.bold('Base repository created'));
+    spinner.succeed(chalks.green.bold('Base repository created'));
 
     if (!modelsExists) {
       logger.warn('[Warn]: Model structures not found!');
       createModelStructures(prisma, settings);
     }
   } catch {
-    spinner.fail(chalk.red.bold('Base repository creation failed'));
+    spinner.fail(chalks.red.bold('Base repository creation failed'));
   }
 };
-
-export default createBaseRepository;

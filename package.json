@@ -1,6 +1,6 @@
 {
   "name": "prisma-repo",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Generating repository pattern using Prisma ORM faster and easier",
   "main": "dist/index.mjs",
   "scripts": {
@@ -44,6 +44,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^3.4.1",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
@@ -65,6 +66,7 @@
     "fs-extra": "^10.1.0",
     "gradient-string": "^2.0.1",
     "lodash": "^4.17.21",
-    "ora": "^6.1.2"
+    "ora": "^6.1.2",
+    "template-file": "^6.0.1"
   }
 }

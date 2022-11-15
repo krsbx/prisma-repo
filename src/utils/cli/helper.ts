@@ -1,8 +1,8 @@
 import figlet from 'figlet';
 import gradient from 'gradient-string';
-import { APP_TITLE, COLOR_SCHEME } from '../utils/constants';
+import { APP_TITLE, COLOR_SCHEME } from 'utils/constants';
 
-const renderTitle = () => {
+export const renderTitle = () => {
   const colors = [
     COLOR_SCHEME.BRIGHT_RED,
     COLOR_SCHEME.BRIGHT_ORANGE,
@@ -20,5 +20,3 @@ const renderTitle = () => {
 
   console.log(roseGradient.multiline(text));
 };
-
-export default renderTitle;

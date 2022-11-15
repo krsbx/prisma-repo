@@ -1,63 +1,39 @@
 import _ from 'lodash';
 import fs from 'fs-extra';
 import appRootPath from 'app-root-path';
-import { Command } from 'commander';
-import { APP_TITLE, DEFAULT_CLI_RESULTS, DEFAULT_PATH } from '../utils/constants';
-import logger from '../utils/logger';
-import createBaseRepository from './baseRepository';
-import createModelStructures from './models';
-import createRepository from './repository';
-import createRespositories from './repositories';
-import { PrismaRepoConfig } from '../utils/interface';
-import { getSettings, getSettingsFromPath } from '../utils/common';
+import { getSettingsFromPath } from 'utils/loader/settings.loader';
+import { createRepository } from 'utils/initializer/repository.initializer';
+import { createBaseRepository } from 'utils/initializer/baseRepository.initializer';
+import { createRespositories } from 'utils/initializer/repositories.initializer';
+import { createModelStructures } from 'utils/initializer/prismaRepo.initializer';
+import { APP_TITLE, DEFAULT_PATH } from 'utils/constants';
+import { createProgram } from 'utils/cli/program';
+import { readFile } from 'utils/common';
+import { logger } from 'utils/logger';
 
-const runCli = async () => {
-  const program = new Command().name(APP_TITLE);
+export const runCli = async () => {
+  const cliResults = createProgram();
 
-  let cliResults = DEFAULT_CLI_RESULTS;
+  const settings: PR.PrismaRepoConfig = await getSettingsFromPath(cliResults.flags.settings);
 
-  let settings: PrismaRepoConfig = {};
-
-  program
-    .description('Use Prisma with repository pattern')
-    .option('--repositories', 'Generate all repositories')
-    .option(
-      '--modelname <modelname>',
-      'Name of the model for the repository to be generated (case sensitive))'
-    )
-    .option('--base-repository', 'Create a base repository', false)
-    .option('--model-structures', 'Update model.ts with the generated structures', false)
-    .option('--settings <settings>', 'Use specific settings from args', '')
-    .parse(process.argv);
-
-  cliResults = program.opts();
-
-  const modelname = program.args[0];
-  if (!_.isEmpty(modelname)) cliResults.modelname = modelname;
-
-  if (!_.isEmpty(cliResults.settings)) settings = await getSettingsFromPath(cliResults.settings);
-  else settings = await getSettings();
-
-  const prisma = await fs.readFile(`${appRootPath}/node_modules/.prisma/client/index.d.ts`, 'utf8');
+  const prisma = await readFile(DEFAULT_PATH.PRISMA_DEFINITION);
 
   const repositoryDirPath = `${appRootPath}/${settings.repositoryPath ?? DEFAULT_PATH.REPOSITORY}`;
   const repositoryDirExist = fs.existsSync(repositoryDirPath);
 
   try {
-    if (!repositoryDirExist) {
-      await fs.mkdirp(repositoryDirPath);
-    }
+    if (!repositoryDirExist) await fs.mkdirp(repositoryDirPath);
 
-    if (cliResults.repositories) {
-      await createRespositories(prisma, settings);
+    if (cliResults.flags.repositories) {
+      createRespositories(prisma, settings);
       return;
     }
 
-    if (cliResults.modelStructures) {
+    if (cliResults.flags.modelStructures) {
       await createModelStructures(prisma, settings);
     }
 
-    if (cliResults.baseRepository) {
+    if (cliResults.flags.baseRepository) {
       await createBaseRepository(prisma, settings);
     }
 
@@ -72,5 +48,3 @@ const runCli = async () => {
     }
   }
 };
-
-export default runCli;

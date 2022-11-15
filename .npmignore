@@ -1,10 +1,11 @@
+.github
+.husky
 .eslintrc.js
 .prettierignore
 .prettierrc.js
 commitlint.config.ts
 tsconfig.json
-
-.husky/*
+src
 
 repository.setting.*
 *.tgz

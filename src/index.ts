@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 
-import runCli from './cli/index';
-import renderTitle from './cli/title';
+import _ from 'lodash';
+import { renderTitle } from 'utils/cli/helper';
+import { runCli } from 'cli';
 
-const main = async () => {
+const main = () => {
   renderTitle();
-
-  await runCli();
+  runCli();
 };
+
+_.mixin({
+  constantCase: (value: string) => _.upperCase(value).replace(/ /g, '_'),
+});
 
 main();
