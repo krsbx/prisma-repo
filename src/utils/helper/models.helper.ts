@@ -13,6 +13,7 @@ export const getModelTypes = (prisma: string, modelName: string) => {
     assignModelType(line, modelName, TYPE_SUFFIX.UPDATE_INPUT, modelType);
     assignModelType(line, modelName, TYPE_SUFFIX.WHERE_UNIQUE_INPUT, modelType);
     assignModelType(line, modelName, TYPE_SUFFIX.ORDER_BY_WITH_RELATION_INPUT, modelType);
+    assignModelType(line, modelName, TYPE_SUFFIX.GROUP_BY, modelType);
   });
 
   modelType.Delegate = `Prisma.${modelName}${TYPE_SUFFIX.DELEGATE}`;

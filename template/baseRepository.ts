@@ -37,6 +37,7 @@ const BaseRepository = <
   Cursor extends ModelTypes[T]['Cursor'],
   Order extends ModelTypes[T]['Order'],
   Delegate extends ModelTypes[T]['Delegate'],
+  GroupBy extends ModelTypes[T]['GroupBy'],
   Scalar extends ModelScalarFields<T>,
   Model extends ModelStructure[T]
 >(
@@ -273,7 +274,7 @@ const BaseRepository = <
       return AbstractBaseRepository.model.groupBy({
         where,
         ...aggregator,
-      });
+      }) as GroupBy;
     }
 
     /**

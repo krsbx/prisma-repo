@@ -77,6 +77,7 @@ export type ModelTypes = {
     Cursor: {{ value.WhereUniqueInput }};
     Order: {{ value.OrderByWithRelationInput }};
     Delegate: {{ value.Delegate }}<ModelDelegate>;
+    GroupBy: {{ value.GroupByOutputType }};
   },
 {{ /modelTypes }}
 };

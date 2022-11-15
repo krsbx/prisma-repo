@@ -17,6 +17,7 @@ export const TYPE_SUFFIX = {
   WHERE_UNIQUE_INPUT: 'WhereUniqueInput',
   ORDER_BY_WITH_RELATION_INPUT: 'OrderByWithRelationInput',
   DELEGATE: 'Delegate',
+  GROUP_BY: 'GroupByOutputType',
 } as const;
 
 export const DEFAULT_MODEL_TYPES = {
@@ -28,6 +29,7 @@ export const DEFAULT_MODEL_TYPES = {
   [TYPE_SUFFIX.WHERE_UNIQUE_INPUT]: 'unknown',
   [TYPE_SUFFIX.ORDER_BY_WITH_RELATION_INPUT]: 'unknown',
   [TYPE_SUFFIX.DELEGATE]: 'unknown',
+  [TYPE_SUFFIX.GROUP_BY]: 'unknown',
 } as const;
 
 export const COLOR_SCHEME = {
