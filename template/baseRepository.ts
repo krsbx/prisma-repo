@@ -37,7 +37,6 @@ const BaseRepository = <
   Cursor extends ModelTypes[T]['Cursor'],
   Order extends ModelTypes[T]['Order'],
   Delegate extends ModelTypes[T]['Delegate'],
-  GroupBy extends ModelTypes[T]['GroupBy'],
   Scalar extends ModelScalarFields<T>,
   Model extends ModelStructure[T]
 >(
@@ -70,6 +69,7 @@ const BaseRepository = <
       return {
         // @ts-ignore
         rows: (await AbstractBaseRepository.model.findMany({
+          // @ts-ignore
           where,
           ...option,
           skip: offset,
@@ -102,7 +102,11 @@ const BaseRepository = <
       const where = extractCondition(conditions);
 
       // @ts-ignore
-      return AbstractBaseRepository.model.findFirst({ where, ...option }) as Promise<Model | null>;
+      return AbstractBaseRepository.model.findFirst({
+        // @ts-ignore
+        where,
+        ...option,
+      }) as Promise<Model | null>;
     }
 
     /**
@@ -127,7 +131,11 @@ const BaseRepository = <
       const where = extractCondition(conditions);
 
       // @ts-ignore
-      return AbstractBaseRepository.model.findUnique({ where, ...option }) as Promise<Model | null>;
+      return AbstractBaseRepository.model.findUnique({
+        // @ts-ignore
+        where,
+        ...option,
+      }) as Promise<Model | null>;
     }
 
     /**
@@ -151,7 +159,12 @@ const BaseRepository = <
       const where = extractCondition(conditions);
 
       // @ts-ignore
-      return AbstractBaseRepository.model.update({ data, where, ...option }) as Promise<Model>;
+      return AbstractBaseRepository.model.update({
+        data,
+        // @ts-ignore
+        where,
+        ...option,
+      }) as Promise<Model>;
     }
 
     /**
@@ -162,7 +175,10 @@ const BaseRepository = <
       const where = extractCondition(conditions);
 
       // @ts-ignore
-      return AbstractBaseRepository.model.deleteMany({ where }) as Promise<Prisma.BatchPayload>;
+      return AbstractBaseRepository.model.deleteMany({
+        // @ts-ignore
+        where,
+      }) as Promise<Prisma.BatchPayload>;
     }
 
     /**
@@ -173,7 +189,10 @@ const BaseRepository = <
       const where = extractCondition(conditions);
 
       // @ts-ignore
-      return AbstractBaseRepository.model.delete({ where }) as Promise<Model>;
+      return AbstractBaseRepository.model.delete({
+        // @ts-ignore
+        where,
+      }) as Promise<Model>;
     }
 
     /**
@@ -208,6 +227,7 @@ const BaseRepository = <
       // @ts-ignore
       return AbstractBaseRepository.model.createMany({
         data,
+        // @ts-ignore
         skipDuplicates,
       }) as Promise<Prisma.BatchPayload>;
     }
@@ -255,7 +275,11 @@ const BaseRepository = <
       const where = extractCondition(conditions);
 
       // @ts-ignore
-      return AbstractBaseRepository.model.count({ where, ...option }) as Promise<number>;
+      return AbstractBaseRepository.model.count({
+        // @ts-ignore
+        where,
+        ...option,
+      }) as Promise<number>;
     }
 
     public static async groupBy(
@@ -272,9 +296,10 @@ const BaseRepository = <
 
       // @ts-ignore
       return AbstractBaseRepository.model.groupBy({
+        // @ts-ignore
         where,
         ...aggregator,
-      }) as GroupBy;
+      });
     }
 
     /**
@@ -303,7 +328,12 @@ const BaseRepository = <
       }
 
       // @ts-ignore
-      return aggregate({ where, ...aggregator, ...option }) as ReturnType<typeof aggregate>;
+      return aggregate({
+        // @ts-ignore
+        where,
+        ...aggregator,
+        ...option,
+      }) as ReturnType<typeof aggregate>;
     }
 
     public static get model(): Delegate {
