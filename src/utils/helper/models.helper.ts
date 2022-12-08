@@ -18,7 +18,10 @@ export const getModelTypes = (prisma: string, modelName: string) => {
 
   modelType.Delegate = `Prisma.${modelName}${TYPE_SUFFIX.DELEGATE}`;
 
-  return modelType;
+  // Stringyfy the model types
+  // We need to stringify the model types since for somehow
+  // it race with getModelsType when using map/foreach
+  return JSON.stringify(modelType, null, 2);
 };
 
 export const getAllModelTypes = (prisma: string, modelNames: string[]) => {
@@ -26,7 +29,7 @@ export const getAllModelTypes = (prisma: string, modelNames: string[]) => {
     modelNames,
     (modelName) => ({
       key: _.camelCase(modelName),
-      value: getModelTypes(prisma, modelName),
+      value: JSON.parse(getModelTypes(prisma, modelName)) as PR.ModelTypes<typeof modelName>,
     })
   );
 
