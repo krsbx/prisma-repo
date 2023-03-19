@@ -1,12 +1,15 @@
 # Prisma Repo
 
+# :warning: The repo is move to another repo :warning:
+Starting from version `0.3.12` the repo is no longer maintained. This package is move to another repo ([<b>@krsbx/prisma-repo</b>](https://github.com/krsbx/prisma-repo-next)) with (hopefully) better development flow. If you like to maintain this repo go ahead make a fork of this repo and add things that you like in your fork.
+
 #### Generating repository pattern for Prisma ORM faster and easier
 
 ---
 
 ## :warning: Change to Class Base From Function Base :warning:
 
-Starting from version 0.3.0 instead of extending the class by creating the instance for each models, we decide to create an abstract class that use a lot of static functions/method so it can be use without creating the instance.
+Starting from version `0.3.0` instead of extending the class by creating the instance for each models, we decide to create an abstract class that use a lot of static functions/method so it can be use without creating the instance.
 
 ## What is this?
 
